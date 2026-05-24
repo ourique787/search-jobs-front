@@ -1,8 +1,13 @@
-import type { AuthResponse, Job, LoginRequest, RegisterRequest, Stack } from "@/types";
+import type { AuthResponse, Job, LoginRequest, RegisterRequest, RelatorioDTO, Senioridade, Stack } from "@/types";
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://localhost:8080";
 
 const TOKEN_KEY = "sj_token";
+
+function redirectToLogin(): void {
+  removeToken();
+  window.location.href = "/";
+}
 
 export function saveToken(token: string): void {
   sessionStorage.setItem(TOKEN_KEY, token);
@@ -29,6 +34,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   });
 
   if (!res.ok) {
+    if (res.status === 401) {
+      redirectToLogin();
+      throw new Error("Sessão expirada. Faça login novamente.");
+    }
     let message = `Erro ${res.status}`;
     try {
       const body = await res.json();
@@ -60,6 +69,8 @@ export const api = {
 
   jobs: {
     list: (): Promise<Job[]> => request<Job[]>("/api/jobs"),
+    click: (id: number): Promise<void> =>
+      request<void>(`/api/jobs/${id}/click`, { method: "POST" }),
   },
 
   stacks: {
@@ -72,5 +83,22 @@ export const api = {
         method: "POST",
         body: JSON.stringify({ vagaId }),
       }),
+  },
+
+  relatorio: {
+    gerar: (params: {
+      dataInicio?: string;
+      dataFim?: string;
+      stackIds?: number[];
+      senioridades?: Senioridade[];
+    }): Promise<RelatorioDTO> => {
+      const searchParams = new URLSearchParams();
+      if (params.dataInicio) searchParams.set("dataInicio", params.dataInicio);
+      if (params.dataFim) searchParams.set("dataFim", params.dataFim);
+      if (params.stackIds?.length) searchParams.set("stackIds", params.stackIds.join(","));
+      if (params.senioridades?.length) searchParams.set("senioridades", params.senioridades.join(","));
+      const query = searchParams.toString();
+      return request<RelatorioDTO>(`/api/relatorio${query ? "?" + query : ""}`);
+    },
   },
 };

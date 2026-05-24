@@ -1,12 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { Code2, Bell, Settings, LogOut, ChevronDown, Menu } from "lucide-react";
-import { useNavigate } from "react-router";
+import { Code2, Bell, Settings, LogOut, ChevronDown, Menu, BarChart2 } from "lucide-react";
+import { useNavigate, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function Header() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
+
+  const navLinks = [
+    { label: "Vagas", path: "/dashboard" },
+    { label: "Relatórios", path: "/relatorios" },
+  ];
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -50,16 +56,26 @@ export function Header() {
           </div>
 
           {/* Navigation Links - Desktop */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
-            <button className="text-foreground hover:text-primary transition-colors font-medium text-sm lg:text-base">
-              Vagas
-            </button>
-            <button className="text-muted-foreground hover:text-primary transition-colors text-sm lg:text-base">
-              Tendências Tech
-            </button>
-            <button className="text-muted-foreground hover:text-primary transition-colors text-sm lg:text-base">
-              Sobre
-            </button>
+          <nav className="hidden md:flex items-center gap-1">
+            {navLinks.map(({ label, path }) => {
+              const isActive = location.pathname === path;
+              return (
+                <button
+                  key={path}
+                  onClick={() => navigate(path)}
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-accent/20 text-primary"
+                      : "text-muted-foreground hover:text-primary hover:bg-secondary"
+                  }`}
+                >
+                  {label === "Relatórios" && (
+                    <BarChart2 className="w-4 h-4" />
+                  )}
+                  {label}
+                </button>
+              );
+            })}
           </nav>
 
           {/* Right Side - Notifications & Profile */}
@@ -138,16 +154,27 @@ export function Header() {
               exit={{ opacity: 0, height: 0 }}
               className="md:hidden pt-4 mt-4 border-t border-border"
             >
-              <div className="flex flex-col gap-3">
-                <button className="text-left px-4 py-2 text-foreground hover:bg-secondary rounded-lg transition-colors font-medium">
-                  Vagas
-                </button>
-                <button className="text-left px-4 py-2 text-muted-foreground hover:bg-secondary rounded-lg transition-colors">
-                  Tendências Tech
-                </button>
-                <button className="text-left px-4 py-2 text-muted-foreground hover:bg-secondary rounded-lg transition-colors">
-                  Sobre
-                </button>
+              <div className="flex flex-col gap-1">
+                {navLinks.map(({ label, path }) => {
+                  const isActive = location.pathname === path;
+                  return (
+                    <button
+                      key={path}
+                      onClick={() => {
+                        navigate(path);
+                        setShowMobileMenu(false);
+                      }}
+                      className={`text-left px-4 py-2.5 rounded-xl transition-colors flex items-center gap-2 text-sm font-medium ${
+                        isActive
+                          ? "bg-accent/20 text-primary"
+                          : "text-muted-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      {label === "Relatórios" && <BarChart2 className="w-4 h-4" />}
+                      {label}
+                    </button>
+                  );
+                })}
               </div>
             </motion.nav>
           )}

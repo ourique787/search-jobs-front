@@ -43,6 +43,48 @@ export interface AuthResponse {
   nome: string;
 }
 
+export interface RelatorioFiltrosAplicados {
+  dataInicio: string;
+  dataFim: string;
+  stacks: string[];
+  senioridades: string[];
+}
+
+export interface RelatorioDistribuicaoTemporal {
+  porMes: Record<string, number>;
+  porDiaDaSemana: Record<string, number>;
+}
+
+export interface RelatorioResumo {
+  totalCandidaturas: number;
+  porFonte: Record<string, number>;
+  porSenioridade: Record<string, number>;
+  porStack: Record<string, number>;
+  porStatus: Record<string, number>;
+  distribuicaoTemporal: RelatorioDistribuicaoTemporal;
+}
+
+export interface RelatorioCandidaturaItem {
+  vagaId: number;
+  titulo: string;
+  empresa: string;
+  fonte: string;
+  senioridade: Senioridade | null;
+  stacks: string[];
+  linkOriginal: string;
+  status: string;
+  dataInteracao: string;
+}
+
+export interface RelatorioDTO {
+  nomeUsuario: string;
+  emailUsuario: string;
+  geradoEm: string;
+  filtrosAplicados: RelatorioFiltrosAplicados;
+  resumo: RelatorioResumo;
+  candidaturas: RelatorioCandidaturaItem[];
+}
+
 export interface LoginRequest {
   email: string;
   senha: string;

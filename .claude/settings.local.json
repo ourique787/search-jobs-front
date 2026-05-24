@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find /home/usuario/Downloads -name *.java)"
+      "Bash(find /home/usuario/Downloads -name *.java)",
+      "Bash(find /home/usuario/Downloads/frontsearchjobs -type f | head -60 && echo \"---\" && find /home/usuario/Downloads/back/src/main/java/searchjobs/pds/back -type f | head -60)",
+      "Read(//home/usuario/Downloads/back/src/main/java/searchjobs/pds/back/**)",
+      "Bash(npm run *)"
     ]
   }
 }

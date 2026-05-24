@@ -1,5 +1,6 @@
 import { Briefcase, Calendar, ExternalLink } from "lucide-react";
 import { motion } from "motion/react";
+import { api } from "@/services/api";
 
 interface JobCardProps {
   id: string;
@@ -28,6 +29,7 @@ const techColors = [
 ];
 
 export function JobCard({
+  id,
   title,
   company,
   source,
@@ -36,7 +38,12 @@ export function JobCard({
   collectedAt,
   linkOriginal,
 }: JobCardProps) {
-  const handleViewDetails = () => {
+  const handleViewDetails = async () => {
+    try {
+      await api.jobs.click(Number(id));
+    } catch {
+      // silencia erro — não bloqueia a navegação
+    }
     if (linkOriginal) {
       window.open(linkOriginal, "_blank", "noopener,noreferrer");
     }

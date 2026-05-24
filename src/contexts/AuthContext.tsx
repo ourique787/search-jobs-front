@@ -33,15 +33,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Restore session if token exists (user refreshed the page)
     const token = getToken();
     if (!token) {
       setIsLoading(false);
       return;
     }
-    // Token exists but we have no user data in memory — clear session to force re-login
-    // A production app would validate the token via an endpoint like GET /api/users/me
-    setIsLoading(false);
+    // Tenta restaurar sessão com o token existente
+    fetch(`${import.meta.env.VITE_API_URL ?? "http://localhost:8080"}/api/auth/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("token inválido");
+        return res.json() as Promise<AuthResponse>;
+      })
+      .then((data) => setUser(buildUser(data)))
+      .catch(() => removeToken())
+      .finally(() => setIsLoading(false));
   }, []);
 
   async function login(data: LoginRequest): Promise<void> {

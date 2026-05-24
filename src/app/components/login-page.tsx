@@ -67,9 +67,14 @@ export function LoginPage() {
       }
       navigate("/dashboard");
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Ocorreu um erro. Tente novamente."
-      );
+      const msg = err instanceof Error ? err.message : "";
+      if (isLogin && (msg.includes("401") || msg.includes("Unauthorized"))) {
+        setError("Email ou senha inválidos.");
+      } else if (msg.includes("400") || msg.includes("Email já cadastrado")) {
+        setError("Este email já está cadastrado. Faça login.");
+      } else {
+        setError(msg || "Ocorreu um erro. Tente novamente.");
+      }
     } finally {
       setIsSubmitting(false);
     }
