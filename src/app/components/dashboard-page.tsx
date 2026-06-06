@@ -1,35 +1,28 @@
 import { useState, useEffect, useMemo } from "react";
-import { Search, Filter } from "lucide-react";
+import { Search, SlidersHorizontal, ChevronLeft } from "lucide-react";
 import { Header } from "./header";
 import { FilterSidebar } from "./filter-sidebar";
 import { JobCard } from "./job-card";
-import { TrendingWidget } from "./trending-widget";
-import { RobotStatusWidget } from "./robot-status-widget";
+import { JobDetailPanel } from "./job-detail-panel";
 import { api } from "@/services/api";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job, Stack } from "@/types";
 
-function formatDataColeta(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const minutes = Math.floor(diff / 60_000);
-  if (minutes < 60) return `Há ${minutes} min`;
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `Há ${hours} hora${hours > 1 ? "s" : ""}`;
-  const days = Math.floor(hours / 24);
-  return `Há ${days} dia${days > 1 ? "s" : ""}`;
-}
+const MOBILE_SENIORITIES = ["Estágio", "Júnior", "Pleno", "Sênior"];
 
 export function DashboardPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [stacks, setStacks] = useState<Stack[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [selectedJob, setSelectedJob] = useState<Job | null>(null);
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSeniorities, setSelectedSeniorities] = useState<string[]>([]);
   const [selectedTechs, setSelectedTechs] = useState<string[]>([]);
   const [techSearch, setTechSearch] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,119 +93,169 @@ export function DashboardPage() {
     });
   }, [jobs, searchQuery, selectedSeniorities, selectedTechs]);
 
+  function handleJobClick(job: Job) {
+    setSelectedJob(job);
+    setShowMobileDetail(true);
+    setShowMobileFilters(false);
+  }
+
+  const activeFilterCount = selectedSeniorities.length + selectedTechs.length;
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="h-screen flex flex-col overflow-hidden bg-background">
       <Header />
 
-      <main className="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Mobile Filter Toggle */}
-        <button
-          onClick={() => setShowFilters(!showFilters)}
-          className="lg:hidden mb-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium flex items-center gap-2 shadow-sm hover:bg-primary/90 transition-colors"
+      <div className="flex flex-1 overflow-hidden">
+        {/* ── Sidebar de filtros — desktop only ───────────────────────── */}
+        <FilterSidebar
+          stacks={stacks}
+          selectedSeniorities={selectedSeniorities}
+          selectedTechs={selectedTechs}
+          onSeniorityChange={handleSeniorityChange}
+          onTechChange={handleTechChange}
+          techSearch={techSearch}
+          onTechSearchChange={setTechSearch}
+        />
+
+        {/* ── Painel da lista de vagas ─────────────────────────────────── */}
+        <div
+          className={`flex flex-col w-full lg:w-[380px] xl:w-[420px] flex-shrink-0 border-r border-border ${
+            showMobileDetail ? "hidden lg:flex" : "flex"
+          }`}
         >
-          <Filter className="w-4 h-4" />
-          {showFilters ? "Fechar Filtros" : "Abrir Filtros"}
-        </button>
+          {/* Cabeçalho do painel */}
+          <div className="flex-shrink-0 bg-card border-b border-border p-3 sm:p-4 space-y-3">
+            {/* Botão de filtro mobile */}
+            <button
+              onClick={() => setShowMobileFilters(!showMobileFilters)}
+              className="lg:hidden w-full px-3 py-2 bg-secondary border border-border rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-secondary/70 transition-colors"
+            >
+              <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+              <span>Filtros</span>
+              {activeFilterCount > 0 && (
+                <span className="ml-auto bg-accent text-accent-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
 
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left Sidebar - Filters */}
-          <div
-            className={`lg:flex-shrink-0 ${
-              showFilters ? "block" : "hidden lg:block"
-            }`}
-          >
-            <FilterSidebar
-              stacks={stacks}
-              selectedSeniorities={selectedSeniorities}
-              selectedTechs={selectedTechs}
-              onSeniorityChange={handleSeniorityChange}
-              onTechChange={handleTechChange}
-              techSearch={techSearch}
-              onTechSearchChange={setTechSearch}
-            />
-          </div>
+            {/* Painel de filtros mobile inline */}
+            {showMobileFilters && (
+              <div className="lg:hidden border border-border rounded-xl p-3 bg-secondary/30 space-y-3">
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    Senioridade
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {MOBILE_SENIORITIES.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => handleSeniorityChange(s)}
+                        className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                          selectedSeniorities.includes(s)
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-card border-border text-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                {activeFilterCount > 0 && (
+                  <button
+                    onClick={() => {
+                      setSelectedSeniorities([]);
+                      setSelectedTechs([]);
+                    }}
+                    className="text-xs text-primary hover:underline font-medium"
+                  >
+                    Limpar filtros ({activeFilterCount})
+                  </button>
+                )}
+              </div>
+            )}
 
-          {/* Main Content - Job Feed */}
-          <div className="flex-1 min-w-0">
-            <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-                Últimas Vagas Encontradas
-              </h1>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                {isLoading
-                  ? "Carregando..."
-                  : `${filteredJobs.length} vaga${filteredJobs.length !== 1 ? "s" : ""} disponível${filteredJobs.length !== 1 ? "is" : ""}`}
-              </p>
-            </div>
-
-            {/* Search Bar */}
-            <div className="relative mb-6">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            {/* Busca */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar por vaga, empresa ou tecnologia..."
-                className="w-full pl-12 pr-4 py-3 sm:py-4 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow shadow-sm text-sm sm:text-base"
+                placeholder="Buscar vagas, empresas, tecnologias..."
+                className="w-full pl-9 pr-4 py-2.5 bg-input-background border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
               />
             </div>
 
-            {/* States */}
+            <p className="text-xs text-muted-foreground">
+              {isLoading
+                ? "Carregando..."
+                : `${filteredJobs.length} vaga${filteredJobs.length !== 1 ? "s" : ""} encontrada${filteredJobs.length !== 1 ? "s" : ""}`}
+            </p>
+          </div>
+
+          {/* Lista de vagas */}
+          <div className="flex-1 overflow-y-auto">
             {isLoading && (
               <div className="flex justify-center py-16">
-                <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin" />
+                <div className="w-7 h-7 border-4 border-accent border-t-transparent rounded-full animate-spin" />
               </div>
             )}
 
             {fetchError && !isLoading && (
-              <div className="text-center py-16">
-                <p className="text-destructive text-base">{fetchError}</p>
-                <p className="text-muted-foreground text-sm mt-2">
-                  Verifique se o backend está em execução e tente novamente.
+              <div className="p-6 text-center">
+                <p className="text-destructive text-sm font-medium">{fetchError}</p>
+                <p className="text-muted-foreground text-xs mt-1">
+                  Verifique se o backend está em execução.
                 </p>
               </div>
             )}
 
-            {/* Job Cards */}
             {!isLoading && !fetchError && (
-              <div className="space-y-4">
+              <>
                 {filteredJobs.map((job) => (
                   <JobCard
                     key={job.id}
-                    id={String(job.id)}
-                    title={job.titulo}
-                    company={job.empresa}
-                    source={job.fonte}
-                    technologies={job.stacksRequisitadas.map((s) => s.nome)}
-                    seniority={SENIORIDADE_DISPLAY[job.senioridade]}
-                    collectedAt={formatDataColeta(job.dataColeta)}
-                    linkOriginal={job.linkOriginal}
+                    job={job}
+                    isSelected={selectedJob?.id === job.id}
+                    onClick={() => handleJobClick(job)}
                   />
                 ))}
-
                 {filteredJobs.length === 0 && (
-                  <div className="text-center py-16">
-                    <p className="text-muted-foreground text-base sm:text-lg">
-                      Nenhuma vaga encontrada com os filtros selecionados.
+                  <div className="p-8 text-center">
+                    <p className="text-muted-foreground text-sm font-medium">
+                      Nenhuma vaga encontrada
                     </p>
-                    <p className="text-muted-foreground text-xs sm:text-sm mt-2">
-                      Tente ajustar os filtros ou limpar a busca.
+                    <p className="text-muted-foreground text-xs mt-1">
+                      Tente outros filtros ou termos de busca.
                     </p>
                   </div>
                 )}
-              </div>
+              </>
             )}
           </div>
-
-          {/* Right Sidebar - Widgets */}
-          <div className="lg:flex-shrink-0 w-full lg:w-80">
-            <div className="sticky top-24 space-y-4">
-              <TrendingWidget jobs={jobs} />
-              <RobotStatusWidget jobCount={jobs.length} />
-            </div>
-          </div>
         </div>
-      </main>
+
+        {/* ── Painel de detalhe ────────────────────────────────────────── */}
+        <div
+          className={`flex-1 overflow-hidden flex flex-col ${
+            showMobileDetail ? "flex" : "hidden lg:flex"
+          }`}
+        >
+          {/* Botão de voltar (mobile) */}
+          {showMobileDetail && (
+            <button
+              onClick={() => setShowMobileDetail(false)}
+              className="lg:hidden flex-shrink-0 px-4 py-3 bg-card border-b border-border flex items-center gap-2 text-sm text-primary font-medium hover:bg-secondary/50 transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Voltar para vagas
+            </button>
+          )}
+          <JobDetailPanel job={selectedJob} allJobs={jobs} />
+        </div>
+      </div>
     </div>
   );
 }

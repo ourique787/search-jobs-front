@@ -35,8 +35,13 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
   if (!res.ok) {
     if (res.status === 401) {
-      redirectToLogin();
-      throw new Error("Sessão expirada. Faça login novamente.");
+      if (getToken()) {
+        // Token existe mas expirou — força re-login
+        redirectToLogin();
+        throw new Error("Sessão expirada. Faça login novamente.");
+      }
+      // Sem token (ex: credenciais erradas no login) — propaga o erro normalmente
+      throw new Error("Erro 401");
     }
     let message = `Erro ${res.status}`;
     try {
