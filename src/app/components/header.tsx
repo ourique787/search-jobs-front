@@ -126,9 +126,12 @@ export function Header() {
                       </p>
                     </div>
                     <div className="py-2">
-                      <button className="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-secondary transition-colors text-foreground text-sm">
+                      <button
+                        onClick={() => { setShowProfileMenu(false); navigate("/perfil"); }}
+                        className="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-secondary transition-colors text-foreground text-sm"
+                      >
                         <Settings className="w-4 h-4" />
-                        <span>Configurações</span>
+                        <span>Meu Perfil</span>
                       </button>
                       <button
                         onClick={handleLogout}

@@ -15,6 +15,7 @@ interface AuthContextValue {
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
+  updateUser: (data: Partial<Pick<AuthUser, "nome">>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -68,6 +69,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
+  function updateUser(data: Partial<Pick<AuthUser, "nome">>): void {
+    setUser((prev) => {
+      if (!prev) return null;
+      const nome = data.nome ?? prev.nome;
+      const words = nome.trim().split(/\s+/);
+      const initials =
+        words.length >= 2
+          ? `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase()
+          : words[0].slice(0, 2).toUpperCase();
+      return { ...prev, nome, initials };
+    });
+  }
+
   return (
     <AuthContext.Provider
       value={{
@@ -77,6 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        updateUser,
       }}
     >
       {children}

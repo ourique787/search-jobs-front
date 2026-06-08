@@ -90,6 +90,20 @@ export const api = {
       }),
   },
 
+  users: {
+    updateProfile: (data: { nome?: string }): Promise<AuthResponse> =>
+      request<AuthResponse>("/api/users/me", {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+
+    updatePassword: (data: { senhaAtual: string; novaSenha: string }): Promise<void> =>
+      request<void>("/api/users/me/senha", {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+  },
+
   relatorio: {
     gerar: (params: {
       dataInicio?: string;
