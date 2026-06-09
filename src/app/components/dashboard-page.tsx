@@ -106,6 +106,8 @@ export function DashboardPage() {
       <Header />
 
       <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden max-w-[1600px] mx-auto w-full pl-4 sm:pl-6 pr-4 sm:pr-6">
+
         {/* ── Sidebar de filtros — desktop only ───────────────────────── */}
         <FilterSidebar
           stacks={stacks}
@@ -119,7 +121,7 @@ export function DashboardPage() {
 
         {/* ── Painel da lista de vagas ─────────────────────────────────── */}
         <div
-          className={`flex flex-col w-full lg:w-[380px] xl:w-[420px] flex-shrink-0 border-r border-border ${
+          className={`flex flex-col w-full lg:w-[380px] xl:w-[420px] flex-shrink-0 border-r border-border ml-4 sm:ml-6 ${
             showMobileDetail ? "hidden lg:flex" : "flex"
           }`}
         >
@@ -255,6 +257,8 @@ export function DashboardPage() {
           )}
           <JobDetailPanel job={selectedJob} allJobs={jobs} />
         </div>
+
+        </div>{/* max-w container */}
       </div>
     </div>
   );

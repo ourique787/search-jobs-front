@@ -7,7 +7,6 @@ import {
   LogOut,
   Linkedin,
   Github,
-  MapPin,
   Save,
   Check,
   AlertCircle,
@@ -42,6 +41,18 @@ function useLocalProfile(email: string) {
   return { load, save };
 }
 
+function normalizeUrl(value: string): string {
+  const v = value.trim();
+  if (!v) return "";
+  if (v.startsWith("http://") || v.startsWith("https://")) return v;
+  return `https://${v}`;
+}
+
+function isValidUrl(value: string): boolean {
+  if (!value.trim()) return true;
+  return value.includes(".");
+}
+
 export function PerfilPage() {
   const navigate = useNavigate();
   const { user, logout, updateUser } = useAuth();
@@ -53,7 +64,6 @@ export function PerfilPage() {
   const [nome, setNome] = useState(user?.nome ?? "");
   const [linkedin, setLinkedin] = useState("");
   const [github, setGithub] = useState("");
-  const [cidade, setCidade] = useState("");
   const [infoStatus, setInfoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [infoError, setInfoError] = useState("");
 
@@ -75,7 +85,6 @@ export function PerfilPage() {
     const extras = loadExtras();
     setLinkedin(extras.linkedin ?? "");
     setGithub(extras.github ?? "");
-    setCidade(extras.cidade ?? "");
     setSenioridadeAlvo((extras.senioridadeAlvo as Senioridade) ?? "");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -84,6 +93,12 @@ export function PerfilPage() {
     e.preventDefault();
     if (!nome.trim()) {
       setInfoError("Nome é obrigatório.");
+      setInfoStatus("error");
+      return;
+    }
+    if (!isValidUrl(linkedin) || !isValidUrl(github)) {
+      setInfoError("Verifique os campos de URL.");
+      setInfoStatus("error");
       return;
     }
     setInfoStatus("loading");
@@ -91,7 +106,7 @@ export function PerfilPage() {
     try {
       await api.users.updateProfile({ nome: nome.trim() });
       updateUser({ nome: nome.trim() });
-      saveExtras({ ...loadExtras(), linkedin, github, cidade });
+      saveExtras({ ...loadExtras(), linkedin: normalizeUrl(linkedin), github: normalizeUrl(github) });
       setInfoStatus("success");
       setTimeout(() => setInfoStatus("idle"), 3000);
     } catch (err) {
@@ -153,69 +168,73 @@ export function PerfilPage() {
     <div className="h-screen flex flex-col overflow-hidden bg-background">
       <Header />
       <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden max-w-[1600px] mx-auto w-full pl-4 sm:pl-6 pr-4 sm:pr-6">
+
         {/* ── Left sidebar ── */}
-        <aside className="hidden lg:flex flex-col w-64 xl:w-72 flex-shrink-0 border-r border-border bg-card overflow-y-auto">
-          {/* Avatar card */}
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-                <span className="text-xl font-bold text-primary-foreground">
-                  {user?.initials ?? "?"}
-                </span>
-              </div>
-              <div className="min-w-0">
-                <p className="font-semibold text-foreground text-sm truncate">
-                  {user?.nome ?? "Usuário"}
-                </p>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">
-                  {user?.email ?? ""}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-6">
-            <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
-                Meu perfil
-              </p>
-              {navItems.map(({ section: s, label, Icon }) => (
-                <button
-                  key={s}
-                  onClick={() => setSection(s)}
-                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1 ${
-                    section === s
-                      ? "bg-accent/20 text-primary"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5">
-                    <Icon className="w-4 h-4" />
-                    {label}
+        <div className="hidden lg:flex flex-col w-64 xl:w-72 flex-shrink-0 pt-6 sm:pt-8 pb-4 overflow-y-auto">
+          <aside className="flex flex-col bg-card border border-border rounded-xl overflow-hidden">
+            {/* Avatar card */}
+            <div className="p-5 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
+                  <span className="text-lg font-bold text-primary-foreground">
+                    {user?.initials ?? "?"}
                   </span>
-                  {section === s && <ChevronRight className="w-3.5 h-3.5 text-primary" />}
-                </button>
-              ))}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground text-sm truncate">
+                    {user?.nome ?? "Usuário"}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {user?.email ?? ""}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
-                Conta
-              </p>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Sair
-              </button>
-            </div>
-          </nav>
-        </aside>
+            {/* Navigation */}
+            <nav className="p-4 space-y-6">
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
+                  Meu perfil
+                </p>
+                {navItems.map(({ section: s, label, Icon }) => (
+                  <button
+                    key={s}
+                    onClick={() => setSection(s)}
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1 ${
+                      section === s
+                        ? "bg-accent/20 text-primary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <Icon className="w-4 h-4" />
+                      {label}
+                    </span>
+                    {section === s && <ChevronRight className="w-3.5 h-3.5 text-primary" />}
+                  </button>
+                ))}
+              </div>
+
+              <div>
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
+                  Conta
+                </p>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sair
+                </button>
+              </div>
+            </nav>
+          </aside>
+        </div>
 
         {/* ── Main content ── */}
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 overflow-y-auto ml-4 sm:ml-6">
           {/* Mobile section strip */}
           <div className="lg:hidden flex gap-1 p-3 border-b border-border bg-card overflow-x-auto">
             {navItems.map(({ section: s, label }) => (
@@ -308,12 +327,15 @@ export function PerfilPage() {
                         </span>
                       </label>
                       <input
-                        type="url"
+                        type="text"
                         value={linkedin}
                         onChange={(e) => setLinkedin(e.target.value)}
-                        className={inputClass}
-                        placeholder="https://linkedin.com/in/seu-perfil"
+                        className={`${inputClass} ${linkedin && !isValidUrl(linkedin) ? "border-destructive focus:ring-destructive/50" : ""}`}
+                        placeholder="linkedin.com/in/seu-perfil"
                       />
+                      {linkedin && !isValidUrl(linkedin) && (
+                        <p className="text-xs text-destructive mt-1.5">URL inválida.</p>
+                      )}
                     </div>
 
                     <div>
@@ -324,28 +346,15 @@ export function PerfilPage() {
                         </span>
                       </label>
                       <input
-                        type="url"
+                        type="text"
                         value={github}
                         onChange={(e) => setGithub(e.target.value)}
-                        className={inputClass}
-                        placeholder="https://github.com/seu-usuario"
+                        className={`${inputClass} ${github && !isValidUrl(github) ? "border-destructive focus:ring-destructive/50" : ""}`}
+                        placeholder="github.com/seu-usuario"
                       />
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>
-                        <span className="flex items-center gap-1.5">
-                          <MapPin className="w-4 h-4 text-muted-foreground" />
-                          Cidade
-                        </span>
-                      </label>
-                      <input
-                        type="text"
-                        value={cidade}
-                        onChange={(e) => setCidade(e.target.value)}
-                        className={inputClass}
-                        placeholder="Ex: Porto Alegre, RS"
-                      />
+                      {github && !isValidUrl(github) && (
+                        <p className="text-xs text-destructive mt-1.5">URL inválida.</p>
+                      )}
                     </div>
 
                     {infoStatus === "error" && infoError && (
@@ -355,10 +364,7 @@ export function PerfilPage() {
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between pt-2">
-                      <p className="text-xs text-muted-foreground">
-                        LinkedIn, GitHub e cidade são salvos localmente.
-                      </p>
+                    <div className="flex justify-end pt-2">
                       <button
                         type="submit"
                         disabled={infoStatus === "loading"}
@@ -596,6 +602,8 @@ export function PerfilPage() {
             </AnimatePresence>
           </div>
         </main>
+
+        </div>{/* max-w container */}
       </div>
     </div>
   );

@@ -1,4 +1,6 @@
-import { ExternalLink, Code2, Calendar, Building2 } from "lucide-react";
+import { ExternalLink, Code2, Calendar, Building2, Briefcase } from "lucide-react";
+
+const EMPRESA_DESCONHECIDA = "Não informada";
 import { api } from "@/services/api";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job } from "@/types";
@@ -70,16 +72,26 @@ export function JobDetailPanel({ job, allJobs }: JobDetailPanelProps) {
       <div className="bg-card border-b border-border p-5 sm:p-6">
         <div className="flex items-start gap-4">
           <div
-            className="w-14 h-14 rounded-xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-sm"
-            style={{ backgroundColor: companyColor }}
+            className={`w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-sm ${
+              job.empresa === EMPRESA_DESCONHECIDA ? "text-primary" : "text-white"
+            }`}
+            style={{
+              backgroundColor: job.empresa === EMPRESA_DESCONHECIDA
+                ? "var(--color-accent)"
+                : companyColor,
+            }}
           >
-            {job.empresa[0]?.toUpperCase() ?? "?"}
+            {job.empresa === EMPRESA_DESCONHECIDA
+              ? <Briefcase className="w-6 h-6" />
+              : job.empresa[0]?.toUpperCase() ?? "?"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-muted-foreground flex items-center gap-1.5 mb-0.5">
-              <Building2 className="w-3.5 h-3.5" />
-              {job.empresa}
-            </p>
+            {job.empresa !== EMPRESA_DESCONHECIDA && (
+              <p className="text-sm text-muted-foreground flex items-center gap-1.5 mb-0.5">
+                <Building2 className="w-3.5 h-3.5" />
+                {job.empresa}
+              </p>
+            )}
             <h2 className="text-lg sm:text-xl font-bold text-foreground leading-tight">
               {job.titulo}
             </h2>

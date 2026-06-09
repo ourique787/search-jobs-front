@@ -1,5 +1,8 @@
+import { Briefcase } from "lucide-react";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job } from "@/types";
+
+const EMPRESA_DESCONHECIDA = "Não informada";
 
 interface JobCardProps {
   job: Job;
@@ -35,16 +38,26 @@ export function JobCard({ job, isSelected, onClick }: JobCardProps) {
       <div className="flex items-start gap-3 pl-1">
         {/* Ícone da empresa */}
         <div
-          className="w-9 h-9 rounded-lg flex items-center justify-center text-white text-sm font-bold flex-shrink-0 shadow-sm"
-          style={{ backgroundColor: getCompanyColor(job.empresa) }}
+          className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm ${
+            job.empresa === EMPRESA_DESCONHECIDA ? "text-primary" : "text-white"
+          }`}
+          style={{
+            backgroundColor: job.empresa === EMPRESA_DESCONHECIDA
+              ? "var(--color-accent)"
+              : getCompanyColor(job.empresa),
+          }}
         >
-          {job.empresa[0]?.toUpperCase() ?? "?"}
+          {job.empresa === EMPRESA_DESCONHECIDA
+            ? <Briefcase className="w-4 h-4" />
+            : job.empresa[0]?.toUpperCase() ?? "?"}
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="text-xs text-muted-foreground truncate leading-tight">
-            {job.empresa}
-          </p>
+          {job.empresa !== EMPRESA_DESCONHECIDA && (
+            <p className="text-xs text-muted-foreground truncate leading-tight">
+              {job.empresa}
+            </p>
+          )}
           <p
             className={`text-sm font-semibold mt-0.5 leading-snug line-clamp-2 ${
               isSelected ? "text-primary" : "text-foreground"
