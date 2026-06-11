@@ -41,6 +41,11 @@ export interface AuthResponse {
   token: string;
   email: string;
   nome: string;
+  linkedin?: string | null;
+  github?: string | null;
+  senioridadeAlvo?: Senioridade | null;
+  stacksPreferidas?: Stack[];
+  fotoPerfil?: string | null;
 }
 
 export interface RelatorioFiltrosAplicados {

@@ -1,11 +1,16 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { api, getToken, removeToken, saveToken } from "@/services/api";
-import type { AuthResponse, LoginRequest, RegisterRequest } from "@/types";
+import type { AuthResponse, LoginRequest, RegisterRequest, Senioridade, Stack } from "@/types";
 
-interface AuthUser {
+export interface AuthUser {
   nome: string;
   email: string;
   initials: string;
+  linkedin: string | null;
+  github: string | null;
+  senioridadeAlvo: Senioridade | null;
+  stacksPreferidas: Stack[];
+  fotoPerfil: string | null;
 }
 
 interface AuthContextValue {
@@ -15,7 +20,7 @@ interface AuthContextValue {
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
   logout: () => void;
-  updateUser: (data: Partial<Pick<AuthUser, "nome">>) => void;
+  updateUser: (data: Partial<Omit<AuthUser, "initials">>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -26,7 +31,16 @@ function buildUser(response: AuthResponse): AuthUser {
     words.length >= 2
       ? `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase()
       : words[0].slice(0, 2).toUpperCase();
-  return { nome: response.nome, email: response.email, initials };
+  return {
+    nome: response.nome,
+    email: response.email,
+    initials,
+    linkedin: response.linkedin ?? null,
+    github: response.github ?? null,
+    senioridadeAlvo: response.senioridadeAlvo ?? null,
+    stacksPreferidas: response.stacksPreferidas ?? [],
+    fotoPerfil: response.fotoPerfil ?? null,
+  };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -39,7 +53,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       return;
     }
-    // Tenta restaurar sessão com o token existente
     fetch(`${import.meta.env.VITE_API_URL ?? "http://localhost:8080"}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -69,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }
 
-  function updateUser(data: Partial<Pick<AuthUser, "nome">>): void {
+  function updateUser(data: Partial<Omit<AuthUser, "initials">>): void {
     setUser((prev) => {
       if (!prev) return null;
       const nome = data.nome ?? prev.nome;
@@ -78,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         words.length >= 2
           ? `${words[0][0]}${words[words.length - 1][0]}`.toUpperCase()
           : words[0].slice(0, 2).toUpperCase();
-      return { ...prev, nome, initials };
+      return { ...prev, ...data, nome, initials };
     });
   }
 

@@ -5,12 +5,23 @@ import { FilterSidebar } from "./filter-sidebar";
 import { JobCard } from "./job-card";
 import { JobDetailPanel } from "./job-detail-panel";
 import { api } from "@/services/api";
+import { useAuth } from "@/contexts/AuthContext";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job, Stack } from "@/types";
+
+
+function matchScore(job: Job, prefs: { senioridadeAlvo: string; preferredStacks: string[] }): number {
+  let score = 0;
+  if (prefs.senioridadeAlvo && job.senioridade === prefs.senioridadeAlvo) score += 2;
+  const names = job.stacksRequisitadas.map((s) => s.nome);
+  score += prefs.preferredStacks.filter((s) => names.includes(s)).length;
+  return score;
+}
 
 const MOBILE_SENIORITIES = ["Estágio", "Júnior", "Pleno", "Sênior"];
 
 export function DashboardPage() {
+  const { user } = useAuth();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [stacks, setStacks] = useState<Stack[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,8 +79,16 @@ export function DashboardPage() {
     );
   };
 
+  const prefs = useMemo(
+    () => ({
+      senioridadeAlvo: user?.senioridadeAlvo ?? "",
+      preferredStacks: user?.stacksPreferidas?.map((s) => s.nome) ?? [],
+    }),
+    [user?.senioridadeAlvo, user?.stacksPreferidas]
+  );
+
   const filteredJobs = useMemo(() => {
-    return jobs.filter((job) => {
+    const filtered = jobs.filter((job) => {
       const techNames = job.stacksRequisitadas.map((s) => s.nome);
       const seniorityDisplay = SENIORIDADE_DISPLAY[job.senioridade];
 
@@ -91,7 +110,11 @@ export function DashboardPage() {
 
       return matchesSearch && matchesSeniority && matchesTech;
     });
-  }, [jobs, searchQuery, selectedSeniorities, selectedTechs]);
+
+    const hasPrefs = prefs.senioridadeAlvo || prefs.preferredStacks.length > 0;
+    if (!hasPrefs) return filtered;
+    return [...filtered].sort((a, b) => matchScore(b, prefs) - matchScore(a, prefs));
+  }, [jobs, searchQuery, selectedSeniorities, selectedTechs, prefs]);
 
   function handleJobClick(job: Job) {
     setSelectedJob(job);
@@ -222,6 +245,7 @@ export function DashboardPage() {
                     job={job}
                     isSelected={selectedJob?.id === job.id}
                     onClick={() => handleJobClick(job)}
+                    isMatch={matchScore(job, prefs) > 0}
                   />
                 ))}
                 {filteredJobs.length === 0 && (
@@ -255,7 +279,11 @@ export function DashboardPage() {
               Voltar para vagas
             </button>
           )}
-          <JobDetailPanel job={selectedJob} allJobs={jobs} />
+          <JobDetailPanel
+            job={selectedJob}
+            allJobs={jobs}
+            onClose={() => { setSelectedJob(null); setShowMobileDetail(false); }}
+          />
         </div>
 
         </div>{/* max-w container */}

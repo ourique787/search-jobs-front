@@ -1,4 +1,4 @@
-import { ExternalLink, Code2, Calendar, Building2, Briefcase } from "lucide-react";
+import { ExternalLink, Code2, Calendar, Building2, Briefcase, X } from "lucide-react";
 
 const EMPRESA_DESCONHECIDA = "Não informada";
 import { api } from "@/services/api";
@@ -10,6 +10,7 @@ import { RobotStatusWidget } from "./robot-status-widget";
 interface JobDetailPanelProps {
   job: Job | null;
   allJobs: Job[];
+  onClose?: () => void;
 }
 
 const COMPANY_COLORS = [
@@ -30,7 +31,7 @@ function formatDate(iso: string): string {
   });
 }
 
-export function JobDetailPanel({ job, allJobs }: JobDetailPanelProps) {
+export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
   if (!job) {
     return (
       <div className="flex-1 overflow-y-auto p-6 bg-secondary/20">
@@ -69,7 +70,16 @@ export function JobDetailPanel({ job, allJobs }: JobDetailPanelProps) {
   return (
     <div className="flex-1 overflow-y-auto bg-background">
       {/* Cabeçalho da vaga */}
-      <div className="bg-card border-b border-border p-5 sm:p-6">
+      <div className="relative bg-card border-b border-border p-5 sm:p-6">
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            aria-label="Fechar vaga"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
         <div className="flex items-start gap-4">
           <div
             className={`w-14 h-14 rounded-xl flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-sm ${

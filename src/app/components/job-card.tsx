@@ -8,6 +8,7 @@ interface JobCardProps {
   job: Job;
   isSelected: boolean;
   onClick: () => void;
+  isMatch?: boolean;
 }
 
 const COMPANY_COLORS = [
@@ -20,7 +21,7 @@ function getCompanyColor(name: string): string {
   return COMPANY_COLORS[hash % COMPANY_COLORS.length];
 }
 
-export function JobCard({ job, isSelected, onClick }: JobCardProps) {
+export function JobCard({ job, isSelected, onClick, isMatch = false }: JobCardProps) {
   return (
     <div
       onClick={onClick}
@@ -73,6 +74,11 @@ export function JobCard({ job, isSelected, onClick }: JobCardProps) {
             <span className="text-xs text-muted-foreground whitespace-nowrap">
               · {job.fonte}
             </span>
+            {isMatch && (
+              <span className="text-xs bg-accent/20 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap border border-accent/40">
+                Para você
+              </span>
+            )}
           </div>
 
           {job.stacksRequisitadas.length > 0 && (

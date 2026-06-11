@@ -4,6 +4,12 @@ const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? "http://
 
 const TOKEN_KEY = "sj_token";
 
+export function resolveMediaUrl(url: string | null | undefined): string | null {
+  if (!url) return null;
+  if (url.startsWith("http://") || url.startsWith("https://")) return url;
+  return `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+}
+
 function redirectToLogin(): void {
   removeToken();
   window.location.href = "/";
@@ -91,7 +97,13 @@ export const api = {
   },
 
   users: {
-    updateProfile: (data: { nome?: string }): Promise<AuthResponse> =>
+    updateProfile: (data: {
+      nome?: string;
+      linkedin?: string | null;
+      github?: string | null;
+      senioridadeAlvo?: Senioridade | null;
+      stackIds?: number[];
+    }): Promise<AuthResponse> =>
       request<AuthResponse>("/api/users/me", {
         method: "PUT",
         body: JSON.stringify(data),
@@ -102,6 +114,25 @@ export const api = {
         method: "PUT",
         body: JSON.stringify(data),
       }),
+
+    uploadFoto: async (file: File): Promise<AuthResponse> => {
+      const token = getToken();
+      const formData = new FormData();
+      formData.append("foto", file);
+      const res = await fetch(`${API_URL}/api/users/me/foto`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      if (!res.ok) {
+        if (res.status === 401 && getToken()) {
+          redirectToLogin();
+          throw new Error("Sessão expirada.");
+        }
+        throw new Error(`Erro ${res.status}`);
+      }
+      return res.json() as Promise<AuthResponse>;
+    },
   },
 
   relatorio: {

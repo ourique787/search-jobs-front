@@ -13,33 +13,20 @@ import {
   Briefcase,
   Eye,
   EyeOff,
+  Search,
+  Camera,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Header } from "./header";
-import { api } from "@/services/api";
+import { api, resolveMediaUrl } from "@/services/api";
 import { SENIORIDADE_DISPLAY } from "@/types";
-import type { Senioridade } from "@/types";
+import type { Senioridade, Stack } from "@/types";
 
 type Section = "informacoes" | "preferencias" | "seguranca";
 
 const SENIORIDADES: Senioridade[] = ["ESTAGIARIO", "JUNIOR", "PLENO", "SENIOR"];
-
-function useLocalProfile(email: string) {
-  const key = `sj_profile_extras_${email}`;
-  function load() {
-    try {
-      return JSON.parse(localStorage.getItem(key) ?? "{}") as Record<string, string>;
-    } catch {
-      return {} as Record<string, string>;
-    }
-  }
-  function save(data: Record<string, string>) {
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-  return { load, save };
-}
 
 function normalizeUrl(value: string): string {
   const v = value.trim();
@@ -56,20 +43,24 @@ function isValidUrl(value: string): boolean {
 export function PerfilPage() {
   const navigate = useNavigate();
   const { user, logout, updateUser } = useAuth();
-  const { load: loadExtras, save: saveExtras } = useLocalProfile(user?.email ?? "");
 
   const [section, setSection] = useState<Section>("informacoes");
 
   // --- Informações pessoais ---
   const [nome, setNome] = useState(user?.nome ?? "");
-  const [linkedin, setLinkedin] = useState("");
-  const [github, setGithub] = useState("");
+  const [linkedin, setLinkedin] = useState(user?.linkedin ?? "");
+  const [github, setGithub] = useState(user?.github ?? "");
   const [infoStatus, setInfoStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [infoError, setInfoError] = useState("");
 
   // --- Preferências ---
-  const [senioridadeAlvo, setSenioridadeAlvo] = useState<Senioridade | "">("");
-  const [prefStatus, setPrefStatus] = useState<"idle" | "loading" | "success">("idle");
+  const [senioridadeAlvo, setSenioridadeAlvo] = useState<Senioridade | "">(user?.senioridadeAlvo ?? "");
+  const [preferredStacks, setPreferredStacks] = useState<string[]>(
+    user?.stacksPreferidas?.map((s) => s.nome) ?? []
+  );
+  const [allStacks, setAllStacks] = useState<Stack[]>([]);
+  const [stackSearch, setStackSearch] = useState("");
+  const [prefStatus, setPrefStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
   // --- Segurança ---
   const [senhaAtual, setSenhaAtual] = useState("");
@@ -81,13 +72,22 @@ export function PerfilPage() {
   const [pwStatus, setPwStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [pwError, setPwError] = useState("");
 
+  // --- Foto de perfil ---
+  const [fotoStatus, setFotoStatus] = useState<"idle" | "loading" | "error">("idle");
+
   useEffect(() => {
-    const extras = loadExtras();
-    setLinkedin(extras.linkedin ?? "");
-    setGithub(extras.github ?? "");
-    setSenioridadeAlvo((extras.senioridadeAlvo as Senioridade) ?? "");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    api.stacks.list().then(setAllStacks).catch(() => {});
   }, []);
+
+  // Sincroniza formulário quando o contexto atualiza (ex: após refresh)
+  useEffect(() => {
+    if (!user) return;
+    setNome(user.nome);
+    setLinkedin(user.linkedin ?? "");
+    setGithub(user.github ?? "");
+    setSenioridadeAlvo(user.senioridadeAlvo ?? "");
+    setPreferredStacks(user.stacksPreferidas?.map((s) => s.nome) ?? []);
+  }, [user]);
 
   const handleSaveInfo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,9 +104,12 @@ export function PerfilPage() {
     setInfoStatus("loading");
     setInfoError("");
     try {
-      await api.users.updateProfile({ nome: nome.trim() });
-      updateUser({ nome: nome.trim() });
-      saveExtras({ ...loadExtras(), linkedin: normalizeUrl(linkedin), github: normalizeUrl(github) });
+      const res = await api.users.updateProfile({
+        nome: nome.trim(),
+        linkedin: normalizeUrl(linkedin) || null,
+        github: normalizeUrl(github) || null,
+      });
+      updateUser({ nome: res.nome, linkedin: res.linkedin ?? null, github: res.github ?? null });
       setInfoStatus("success");
       setTimeout(() => setInfoStatus("idle"), 3000);
     } catch (err) {
@@ -117,11 +120,57 @@ export function PerfilPage() {
 
   const handleSavePrefs = async () => {
     setPrefStatus("loading");
-    saveExtras({ ...loadExtras(), senioridadeAlvo });
-    await new Promise((r) => setTimeout(r, 400));
-    setPrefStatus("success");
-    setTimeout(() => setPrefStatus("idle"), 3000);
+    try {
+      const stackIds = allStacks
+        .filter((s) => preferredStacks.includes(s.nome))
+        .map((s) => s.id);
+      const res = await api.users.updateProfile({
+        senioridadeAlvo: senioridadeAlvo || null,
+        stackIds,
+      });
+      updateUser({
+        senioridadeAlvo: res.senioridadeAlvo ?? null,
+        stacksPreferidas: res.stacksPreferidas ?? [],
+      });
+      setPrefStatus("success");
+      setTimeout(() => setPrefStatus("idle"), 3000);
+    } catch {
+      setPrefStatus("error");
+    }
   };
+
+  const handleUploadFoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 5 * 1024 * 1024) {
+      alert("A imagem deve ter no máximo 5 MB.");
+      return;
+    }
+    setFotoStatus("loading");
+    try {
+      const res = await api.users.uploadFoto(file);
+      console.log("[foto] resposta do backend:", res);
+      console.log("[foto] fotoPerfil recebido:", res.fotoPerfil);
+      console.log("[foto] URL resolvida:", resolveMediaUrl(res.fotoPerfil));
+      updateUser({ fotoPerfil: res.fotoPerfil ?? null });
+      setFotoStatus("idle");
+    } catch (err) {
+      console.error("[foto] erro no upload:", err);
+      setFotoStatus("error");
+      setTimeout(() => setFotoStatus("idle"), 3000);
+    }
+  };
+
+  const togglePreferredStack = (nome: string) => {
+    setPreferredStacks((prev) =>
+      prev.includes(nome) ? prev.filter((s) => s !== nome) : [...prev, nome]
+    );
+  };
+
+  const filteredPrefStacks = allStacks.filter((s) =>
+    s.nome.toLowerCase().includes(stackSearch.toLowerCase())
+  );
 
   const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,10 +225,11 @@ export function PerfilPage() {
             {/* Avatar card */}
             <div className="p-5 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
-                  <span className="text-lg font-bold text-primary-foreground">
-                    {user?.initials ?? "?"}
-                  </span>
+                <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden">
+                  {resolveMediaUrl(user?.fotoPerfil)
+                    ? <img src={resolveMediaUrl(user?.fotoPerfil)!} alt="Foto de perfil" className="w-full h-full object-cover" />
+                    : <span className="text-lg font-bold text-primary-foreground">{user?.initials ?? "?"}</span>
+                  }
                 </div>
                 <div className="min-w-0">
                   <p className="font-semibold text-foreground text-sm truncate">
@@ -275,11 +325,35 @@ export function PerfilPage() {
                     />
                     {/* Floating avatar */}
                     <div className="absolute -bottom-10 left-6 sm:left-8">
-                      <div className="w-20 h-20 bg-primary rounded-full border-4 border-card flex items-center justify-center shadow-xl">
-                        <span className="text-2xl font-bold text-primary-foreground">
-                          {user?.initials ?? "?"}
-                        </span>
-                      </div>
+                      <label className="relative cursor-pointer group">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="sr-only"
+                          onChange={handleUploadFoto}
+                          disabled={fotoStatus === "loading"}
+                        />
+                        <div className="w-20 h-20 bg-primary rounded-full border-4 border-card flex items-center justify-center shadow-xl overflow-hidden">
+                          {(() => {
+                            const url = resolveMediaUrl(user?.fotoPerfil);
+                            console.log("[foto] user.fotoPerfil:", user?.fotoPerfil, "| URL resolvida:", url);
+                            return url
+                              ? <img src={url} alt="Foto de perfil" className="w-full h-full object-cover" onError={(e) => console.error("[foto] erro ao carregar imagem:", e.currentTarget.src)} />
+                              : <span className="text-2xl font-bold text-primary-foreground">{user?.initials ?? "?"}</span>;
+                          })()}
+                        </div>
+                        <div className="absolute inset-0 rounded-full flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                          {fotoStatus === "loading"
+                            ? <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                            : <Camera className="w-5 h-5 text-white" />
+                          }
+                        </div>
+                      </label>
+                      {fotoStatus === "error" && (
+                        <p className="absolute top-full mt-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-destructive bg-card border border-destructive/30 rounded-lg px-2 py-1 shadow">
+                          Erro ao enviar foto.
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -405,7 +479,7 @@ export function PerfilPage() {
                     Preferências de vagas
                   </h1>
                   <p className="text-sm text-muted-foreground mb-8">
-                    Defina o nível de senioridade que você está buscando no mercado.
+                    Suas preferências priorizam vagas correspondentes na página de vagas.
                   </p>
 
                   <div className="space-y-8">
@@ -436,6 +510,51 @@ export function PerfilPage() {
                             </span>
                           </button>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* Stacks de interesse */}
+                    <div>
+                      <h2 className="text-sm font-semibold text-foreground mb-1">
+                        Tecnologias de interesse
+                      </h2>
+                      <p className="text-xs text-muted-foreground mb-4">
+                        {preferredStacks.length > 0
+                          ? `${preferredStacks.length} selecionada${preferredStacks.length > 1 ? "s" : ""}`
+                          : "Nenhuma selecionada"}
+                      </p>
+
+                      <div className="relative mb-3">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                        <input
+                          type="text"
+                          value={stackSearch}
+                          onChange={(e) => setStackSearch(e.target.value)}
+                          placeholder="Buscar tecnologia..."
+                          className="w-full pl-8 pr-3 py-2 bg-secondary border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+                        />
+                      </div>
+
+                      <div className="space-y-2 max-h-52 overflow-y-auto pr-1 border border-border rounded-xl p-3 bg-secondary/30">
+                        {filteredPrefStacks.map((stack) => (
+                          <label
+                            key={stack.id}
+                            className="flex items-center gap-2.5 cursor-pointer group"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={preferredStacks.includes(stack.nome)}
+                              onChange={() => togglePreferredStack(stack.nome)}
+                              className="w-4 h-4 rounded border-border accent-[#84ff00]"
+                            />
+                            <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                              {stack.nome}
+                            </span>
+                          </label>
+                        ))}
+                        {filteredPrefStacks.length === 0 && (
+                          <p className="text-xs text-muted-foreground py-1">Nenhuma encontrada.</p>
+                        )}
                       </div>
                     </div>
 

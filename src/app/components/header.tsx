@@ -3,6 +3,7 @@ import { Code2, Bell, Settings, LogOut, ChevronDown, Menu, BarChart2 } from "luc
 import { useNavigate, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
+import { resolveMediaUrl } from "@/services/api";
 
 export function Header() {
   const navigate = useNavigate();
@@ -100,10 +101,11 @@ export function Header() {
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
                 className="flex items-center gap-1 sm:gap-2 p-2 hover:bg-secondary rounded-xl transition-colors"
               >
-                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center">
-                  <span className="text-xs sm:text-sm font-semibold text-primary-foreground">
-                    {user?.initials ?? "?"}
-                  </span>
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-primary rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                  {resolveMediaUrl(user?.fotoPerfil)
+                    ? <img src={resolveMediaUrl(user?.fotoPerfil)!} alt="Foto de perfil" className="w-full h-full object-cover" />
+                    : <span className="text-xs sm:text-sm font-semibold text-primary-foreground">{user?.initials ?? "?"}</span>
+                  }
                 </div>
                 <ChevronDown className="hidden sm:block w-4 h-4 text-muted-foreground" />
               </button>
