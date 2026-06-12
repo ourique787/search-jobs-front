@@ -3,7 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell } from "recharts
 import { useMemo } from "react";
 import type { Job } from "@/types";
 
-const CHART_COLORS = ["#84ff00", "#00d4ff", "#10b981"];
+const CHART_COLORS = ["#4F46E5", "#7C3AED", "#059669"];
 
 interface TrendingWidgetProps {
   jobs: Job[];
@@ -29,7 +29,7 @@ export function TrendingWidget({ jobs }: TrendingWidgetProps) {
     return (
       <div className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-4">
         <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-accent" />
+          <TrendingUp className="w-5 h-5 text-primary" />
           <h3 className="font-semibold text-foreground text-sm sm:text-base">
             Tendências da Semana
           </h3>
@@ -44,7 +44,7 @@ export function TrendingWidget({ jobs }: TrendingWidgetProps) {
   return (
     <div className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-4">
       <div className="flex items-center gap-2 mb-4">
-        <TrendingUp className="w-5 h-5 text-accent" />
+        <TrendingUp className="w-5 h-5 text-primary" />
         <h3 className="font-semibold text-foreground text-sm sm:text-base">
           Tendências da Semana
         </h3>

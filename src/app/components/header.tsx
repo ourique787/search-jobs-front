@@ -48,7 +48,7 @@ export function Header() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-accent rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <Code2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             </div>
             <span className="text-lg sm:text-xl font-semibold text-primary">
@@ -92,7 +92,7 @@ export function Header() {
             {/* Notifications */}
             <button className="relative p-2 hover:bg-secondary rounded-xl transition-colors">
               <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full"></span>
+              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
             </button>
 
             {/* Profile Dropdown */}

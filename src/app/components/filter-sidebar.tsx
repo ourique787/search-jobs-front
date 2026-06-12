@@ -63,7 +63,7 @@ export function FilterSidebar({
                   type="checkbox"
                   checked={selectedSeniorities.includes(seniority)}
                   onChange={() => onSeniorityChange(seniority)}
-                  className="w-4 h-4 rounded border-border accent-[#84ff00]"
+                  className="w-4 h-4 rounded border-border accent-[#6366F1]"
                 />
                 <span className="text-sm text-foreground group-hover:text-primary transition-colors">
                   {seniority}
@@ -98,7 +98,7 @@ export function FilterSidebar({
                   type="checkbox"
                   checked={selectedTechs.includes(stack.nome)}
                   onChange={() => onTechChange(stack.nome)}
-                  className="w-4 h-4 rounded border-border accent-[#84ff00]"
+                  className="w-4 h-4 rounded border-border accent-[#6366F1]"
                 />
                 <span className="text-sm text-foreground group-hover:text-primary transition-colors">
                   {stack.nome}

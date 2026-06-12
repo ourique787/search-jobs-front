@@ -91,10 +91,10 @@ export function LoginPage() {
       {/* Left Column - Illustration */}
       <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-32 h-32 border-2 border-accent rounded-lg rotate-12"></div>
-          <div className="absolute top-40 right-32 w-24 h-24 border-2 border-accent rounded-full"></div>
-          <div className="absolute bottom-32 left-40 w-40 h-40 border-2 border-accent rounded-lg -rotate-6"></div>
-          <div className="absolute bottom-20 right-20 w-28 h-28 border-2 border-accent rounded-full"></div>
+          <div className="absolute top-20 left-20 w-32 h-32 border-2 border-white rounded-lg rotate-12"></div>
+          <div className="absolute top-40 right-32 w-24 h-24 border-2 border-white rounded-full"></div>
+          <div className="absolute bottom-32 left-40 w-40 h-40 border-2 border-white rounded-lg -rotate-6"></div>
+          <div className="absolute bottom-20 right-20 w-28 h-28 border-2 border-white rounded-full"></div>
         </div>
 
         <div className="relative z-10 flex flex-col justify-center items-start px-16 w-full">
@@ -104,8 +104,8 @@ export function LoginPage() {
             transition={{ duration: 0.6 }}
             className="flex items-center gap-3 mb-8"
           >
-            <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center">
-              <Code2 className="w-7 h-7 text-primary" />
+            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+              <Code2 className="w-7 h-7 text-white" />
             </div>
             <span className="text-3xl font-semibold text-white">SearchJobs</span>
           </motion.div>
@@ -142,7 +142,7 @@ export function LoginPage() {
         >
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <Code2 className="w-6 h-6 text-primary" />
             </div>
             <span className="text-2xl font-semibold text-primary">SearchJobs</span>

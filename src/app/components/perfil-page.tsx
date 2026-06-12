@@ -209,7 +209,7 @@ export function PerfilPage() {
   ];
 
   const inputClass =
-    "w-full px-3 py-2.5 bg-secondary border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors";
+    "w-full px-3 py-2.5 bg-secondary border border-border rounded-xl text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors";
 
   const labelClass = "block text-sm font-medium text-foreground mb-1.5";
 
@@ -254,7 +254,7 @@ export function PerfilPage() {
                     onClick={() => setSection(s)}
                     className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-colors mb-1 ${
                       section === s
-                        ? "bg-accent/20 text-primary"
+                        ? "bg-primary/10 text-primary"
                         : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }`}
                   >
@@ -293,7 +293,7 @@ export function PerfilPage() {
                 onClick={() => setSection(s)}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   section === s
-                    ? "bg-accent/20 text-primary"
+                    ? "bg-primary/10 text-primary"
                     : "text-muted-foreground hover:bg-secondary"
                 }`}
               >
@@ -314,15 +314,18 @@ export function PerfilPage() {
                   transition={{ duration: 0.2 }}
                 >
                   {/* Banner */}
-                  <div className="relative h-28 sm:h-36 rounded-2xl bg-gradient-to-br from-accent/40 via-primary/15 to-accent/5 mb-16 overflow-hidden">
-                    <div
-                      className="absolute inset-0 opacity-[0.15]"
-                      style={{
-                        backgroundImage:
-                          "radial-gradient(circle, var(--color-accent) 1px, transparent 1px)",
-                        backgroundSize: "22px 22px",
-                      }}
-                    />
+                  <div className="relative h-28 sm:h-36 mb-16">
+                    {/* Background separado para não clipar o avatar */}
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-accent/40 via-primary/15 to-accent/5 overflow-hidden">
+                      <div
+                        className="absolute inset-0 opacity-[0.15]"
+                        style={{
+                          backgroundImage:
+                            "radial-gradient(circle, var(--color-accent) 1px, transparent 1px)",
+                          backgroundSize: "22px 22px",
+                        }}
+                      />
+                    </div>
                     {/* Floating avatar */}
                     <div className="absolute -bottom-10 left-6 sm:left-8">
                       <label className="relative cursor-pointer group">
@@ -442,7 +445,7 @@ export function PerfilPage() {
                       <button
                         type="submit"
                         disabled={infoStatus === "loading"}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-accent text-primary font-semibold rounded-xl hover:bg-accent/90 disabled:opacity-60 transition-all text-sm"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-foreground font-semibold rounded-xl hover:bg-primary disabled:opacity-60 transition-all text-sm"
                       >
                         {infoStatus === "loading" ? (
                           <>
@@ -495,7 +498,7 @@ export function PerfilPage() {
                             onClick={() => setSenioridadeAlvo((prev) => (prev === s ? "" : s))}
                             className={`px-4 py-4 rounded-xl border text-sm font-medium transition-all text-left ${
                               senioridadeAlvo === s
-                                ? "border-accent bg-accent/10 text-primary ring-1 ring-accent/40"
+                                ? "border-primary bg-primary/8 text-primary ring-1 ring-primary/30"
                                 : "border-border bg-secondary text-muted-foreground hover:border-accent/50 hover:text-foreground"
                             }`}
                           >
@@ -531,7 +534,7 @@ export function PerfilPage() {
                           value={stackSearch}
                           onChange={(e) => setStackSearch(e.target.value)}
                           placeholder="Buscar tecnologia..."
-                          className="w-full pl-8 pr-3 py-2 bg-secondary border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+                          className="w-full pl-8 pr-3 py-2 bg-secondary border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
                         />
                       </div>
 
@@ -545,7 +548,7 @@ export function PerfilPage() {
                               type="checkbox"
                               checked={preferredStacks.includes(stack.nome)}
                               onChange={() => togglePreferredStack(stack.nome)}
-                              className="w-4 h-4 rounded border-border accent-[#84ff00]"
+                              className="w-4 h-4 rounded border-border accent-[#6366F1]"
                             />
                             <span className="text-sm text-foreground group-hover:text-primary transition-colors">
                               {stack.nome}
@@ -563,7 +566,7 @@ export function PerfilPage() {
                         type="button"
                         disabled={prefStatus === "loading"}
                         onClick={handleSavePrefs}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-accent text-primary font-semibold rounded-xl hover:bg-accent/90 disabled:opacity-60 transition-all text-sm"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-foreground font-semibold rounded-xl hover:bg-primary disabled:opacity-60 transition-all text-sm"
                       >
                         {prefStatus === "loading" ? (
                           <>
@@ -685,7 +688,7 @@ export function PerfilPage() {
                     )}
 
                     {pwStatus === "success" && (
-                      <div className="flex items-center gap-2 px-3 py-2.5 bg-accent/10 border border-accent/30 rounded-xl text-primary text-sm">
+                      <div className="flex items-center gap-2 px-3 py-2.5 bg-success-soft border border-success/30 rounded-xl text-success text-sm">
                         <Check className="w-4 h-4 flex-shrink-0" />
                         Senha alterada com sucesso!
                       </div>
@@ -695,7 +698,7 @@ export function PerfilPage() {
                       <button
                         type="submit"
                         disabled={pwStatus === "loading"}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-accent text-primary font-semibold rounded-xl hover:bg-accent/90 disabled:opacity-60 transition-all text-sm"
+                        className="flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-foreground font-semibold rounded-xl hover:bg-primary disabled:opacity-60 transition-all text-sm"
                       >
                         {pwStatus === "loading" ? (
                           <>

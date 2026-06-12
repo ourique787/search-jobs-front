@@ -37,14 +37,14 @@ const SENIORITY_OPTIONS: { value: Senioridade; label: string }[] = [
 ];
 
 const CHART_COLORS = [
-  "#84ff00",
-  "#00d4ff",
-  "#10b981",
-  "#22c55e",
-  "#f59e0b",
-  "#ef4444",
-  "#8b5cf6",
-  "#ec4899",
+  "#4F46E5",
+  "#7C3AED",
+  "#059669",
+  "#2563EB",
+  "#D97706",
+  "#DC2626",
+  "#0891B2",
+  "#9333EA",
 ];
 
 const DIA_ABBR: Record<string, string> = {
@@ -108,11 +108,9 @@ function StatCard({
     <div className="bg-card border border-border rounded-xl p-4 sm:p-5 flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${
-            accent ? "bg-accent" : "bg-primary/10"
-          }`}
+          className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0"
         >
-          <Icon className={`w-4 h-4 ${accent ? "text-primary" : "text-primary"}`} />
+          <Icon className="w-4 h-4 text-primary" />
         </div>
         <p className="text-xs text-muted-foreground leading-tight">{label}</p>
       </div>
@@ -387,7 +385,7 @@ export function RelatoriosPage() {
                               : [...prev, value]
                           )
                         }
-                        className="w-4 h-4 rounded border-border accent-[#84ff00]"
+                        className="w-4 h-4 rounded border-border accent-[#6366F1]"
                       />
                       <span className="text-sm text-foreground group-hover:text-primary transition-colors">
                         {label}
@@ -428,7 +426,7 @@ export function RelatoriosPage() {
                               : [...prev, stack.id]
                           )
                         }
-                        className="w-4 h-4 rounded border-border accent-[#84ff00]"
+                        className="w-4 h-4 rounded border-border accent-[#6366F1]"
                       />
                       <span className="text-sm text-foreground group-hover:text-primary transition-colors">
                         {stack.nome}
@@ -595,7 +593,7 @@ export function RelatoriosPage() {
                               <Tooltip content={<CustomTooltip />} />
                               <Bar
                                 dataKey="value"
-                                fill="#84ff00"
+                                fill="var(--primary)"
                                 radius={[4, 4, 0, 0]}
                               />
                             </BarChart>
@@ -630,7 +628,7 @@ export function RelatoriosPage() {
                             <Tooltip content={<CustomTooltip />} />
                             <Bar
                               dataKey="value"
-                              fill="#00d4ff"
+                              fill="var(--chart-2)"
                               radius={[4, 4, 0, 0]}
                             />
                           </BarChart>

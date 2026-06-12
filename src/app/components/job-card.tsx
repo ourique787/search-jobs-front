@@ -1,6 +1,7 @@
-import { Briefcase } from "lucide-react";
+import { Briefcase, Clock } from "lucide-react";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job } from "@/types";
+import { useAuth } from "@/contexts/AuthContext";
 
 const EMPRESA_DESCONHECIDA = "Não informada";
 
@@ -8,12 +9,11 @@ interface JobCardProps {
   job: Job;
   isSelected: boolean;
   onClick: () => void;
-  isMatch?: boolean;
 }
 
 const COMPANY_COLORS = [
-  "#2563eb", "#7c3aed", "#db2777", "#d97706",
-  "#059669", "#4f46e5", "#dc2626", "#0891b2",
+  "#14532d", "#1e3a5f", "#3b0764", "#7c2d12",
+  "#164e63", "#1a2e05", "#713f12", "#0f172a",
 ];
 
 function getCompanyColor(name: string): string {
@@ -21,83 +21,102 @@ function getCompanyColor(name: string): string {
   return COMPANY_COLORS[hash % COMPANY_COLORS.length];
 }
 
-export function JobCard({ job, isSelected, onClick, isMatch = false }: JobCardProps) {
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  if (days === 0) return "Hoje";
+  if (days === 1) return "1 dia atrás";
+  return `${days} dias atrás`;
+}
+
+function formatTitle(title: string): string {
+  return title
+    .replace(/\s*\(\s*([^)]*?)\s*\)\s*/g, (_, inner) => {
+      const trimmed = inner.trim();
+      // Pure numeric/code (no spaces, contains digits): remove
+      if (/^[\w-]+$/.test(trimmed) && /\d/.test(trimmed)) return ' ';
+      return ` (${trimmed.replace(/\s+/g, ' ')}) `;
+    })
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+export function JobCard({ job, isSelected, onClick }: JobCardProps) {
+  const isUnknown = job.empresa === EMPRESA_DESCONHECIDA;
+  const { user } = useAuth();
+  const preferredStacks = user?.stacksPreferidas?.map((s) => s.nome) ?? [];
+
+  const sortedStacks = [...job.stacksRequisitadas].sort(
+    (a, b) =>
+      (preferredStacks.includes(a.nome) ? 0 : 1) -
+      (preferredStacks.includes(b.nome) ? 0 : 1)
+  );
+  const visible = sortedStacks.slice(0, 2);
+  const hidden = sortedStacks.length - visible.length;
+
   return (
     <div
       onClick={onClick}
-      className={`px-4 py-3.5 cursor-pointer border-b border-border transition-colors relative select-none ${
-        isSelected ? "bg-accent/5" : "hover:bg-secondary/40"
+      className={`px-4 py-4 cursor-pointer border-b border-border transition-colors relative select-none border-l-2 ${
+        isSelected
+          ? "bg-accent/5 border-l-accent"
+          : "border-l-transparent hover:bg-secondary/40"
       }`}
     >
-      {/* Indicador de seleção */}
-      <div
-        className={`absolute left-0 top-0 bottom-0 w-0.5 transition-colors ${
-          isSelected ? "bg-accent" : "bg-transparent"
-        }`}
-      />
-
-      <div className="flex items-start gap-3 pl-1">
-        {/* Ícone da empresa */}
+      <div className="flex items-start gap-3">
         <div
-          className={`w-9 h-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm ${
-            job.empresa === EMPRESA_DESCONHECIDA ? "text-primary" : "text-white"
+          className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+            isUnknown ? "bg-secondary" : "text-white"
           }`}
-          style={{
-            backgroundColor: job.empresa === EMPRESA_DESCONHECIDA
-              ? "var(--color-accent)"
-              : getCompanyColor(job.empresa),
-          }}
+          style={isUnknown ? undefined : { backgroundColor: getCompanyColor(job.empresa) }}
         >
-          {job.empresa === EMPRESA_DESCONHECIDA
-            ? <Briefcase className="w-4 h-4" />
+          {isUnknown
+            ? <Briefcase className="w-5 h-5 text-muted-foreground" />
             : job.empresa[0]?.toUpperCase() ?? "?"}
         </div>
 
         <div className="flex-1 min-w-0">
-          {job.empresa !== EMPRESA_DESCONHECIDA && (
-            <p className="text-xs text-muted-foreground truncate leading-tight">
-              {job.empresa}
-            </p>
-          )}
-          <p
-            className={`text-sm font-semibold mt-0.5 leading-snug line-clamp-2 ${
-              isSelected ? "text-primary" : "text-foreground"
-            }`}
-          >
-            {job.titulo}
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0 flex-1">
+              {!isUnknown && (
+                <p className="text-xs font-semibold text-foreground truncate leading-tight">
+                  {job.empresa}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground truncate leading-tight">
+                {job.fonte}
+              </p>
+            </div>
+            <div className="flex items-center gap-1 text-muted-foreground flex-shrink-0">
+              <Clock className="w-3 h-3" />
+              <span className="text-[12px]">{timeAgo(job.dataColeta)}</span>
+            </div>
+          </div>
+
+          <p className={`text-sm font-semibold mt-2 leading-snug line-clamp-2 ${
+            isSelected ? "text-primary" : "text-foreground"
+          }`}>
+            {formatTitle(job.titulo)}
           </p>
 
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-            <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+            <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
               {SENIORIDADE_DISPLAY[job.senioridade]}
             </span>
-            <span className="text-xs text-muted-foreground whitespace-nowrap">
-              · {job.fonte}
-            </span>
-            {isMatch && (
-              <span className="text-xs bg-accent/20 text-primary px-2 py-0.5 rounded-full font-semibold whitespace-nowrap border border-accent/40">
-                Para você
+            {visible.map((s) => (
+              <span
+                key={s.id}
+                className="text-xs bg-transparent border border-border text-muted-foreground px-2 py-0.5 rounded-full whitespace-nowrap"
+              >
+                {s.nome}
+              </span>
+            ))}
+            {hidden > 0 && (
+              <span className="text-xs text-muted-foreground/70 whitespace-nowrap">
+                +{hidden}
               </span>
             )}
           </div>
-
-          {job.stacksRequisitadas.length > 0 && (
-            <div className="flex items-center gap-1 mt-1.5 flex-wrap">
-              {job.stacksRequisitadas.slice(0, 3).map((s) => (
-                <span
-                  key={s.id}
-                  className="text-xs bg-secondary border border-border rounded px-1.5 py-0.5 whitespace-nowrap"
-                >
-                  {s.nome}
-                </span>
-              ))}
-              {job.stacksRequisitadas.length > 3 && (
-                <span className="text-xs text-muted-foreground">
-                  +{job.stacksRequisitadas.length - 3}
-                </span>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </div>
