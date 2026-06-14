@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
-import { Code2 } from "lucide-react";
+import { useNavigate, Link } from "react-router";
+import { Code2, ArrowLeft } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Senioridade } from "@/types";
@@ -87,65 +87,32 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left Column - Illustration */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-32 h-32 border-2 border-white rounded-lg rotate-12"></div>
-          <div className="absolute top-40 right-32 w-24 h-24 border-2 border-white rounded-full"></div>
-          <div className="absolute bottom-32 left-40 w-40 h-40 border-2 border-white rounded-lg -rotate-6"></div>
-          <div className="absolute bottom-20 right-20 w-28 h-28 border-2 border-white rounded-full"></div>
-        </div>
-
-        <div className="relative z-10 flex flex-col justify-center items-start px-16 w-full">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="flex items-center gap-3 mb-8"
-          >
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <Code2 className="w-7 h-7 text-white" />
-            </div>
-            <span className="text-3xl font-semibold text-white">SearchJobs</span>
-          </motion.div>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-4xl font-bold text-white mb-4 leading-tight"
-          >
-            Encontre sua próxima<br />oportunidade tech
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-lg text-white/80 max-w-md"
-          >
-            Vagas atualizadas em tempo real das principais plataformas de
-            recrutamento. Filtradas especialmente para profissionais de
-            tecnologia.
-          </motion.p>
-        </div>
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Back link */}
+      <div className="px-6 pt-5">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Voltar
+        </Link>
       </div>
 
-      {/* Right Column - Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 bg-background">
+      {/* Centered form */}
+      <div className="flex-1 flex items-center justify-center px-6 py-10">
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8 justify-center">
-            <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-              <Code2 className="w-6 h-6 text-primary" />
+          {/* Logo */}
+          <div className="flex items-center gap-2.5 justify-center mb-8">
+            <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center">
+              <Code2 className="w-5 h-5 text-white" />
             </div>
-            <span className="text-2xl font-semibold text-primary">SearchJobs</span>
+            <span className="text-2xl font-semibold text-foreground">SearchJobs</span>
           </div>
 
           <div className="bg-card rounded-2xl border border-border p-8 shadow-sm">
@@ -158,14 +125,12 @@ export function LoginPage() {
                 : "Comece a encontrar vagas incríveis"}
             </p>
 
-            {/* Error Message */}
             {error && (
               <div className="mb-4 px-4 py-3 bg-destructive/10 border border-destructive/30 rounded-xl text-sm text-destructive">
                 {error}
               </div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4" noValidate>
               {!isLogin && (
                 <div>
@@ -219,10 +184,7 @@ export function LoginPage() {
 
               {!isLogin && (
                 <div>
-                  <label
-                    htmlFor="senioridadeAlvo"
-                    className="block mb-2 text-sm font-medium"
-                  >
+                  <label htmlFor="senioridadeAlvo" className="block mb-2 text-sm font-medium">
                     Senioridade alvo{" "}
                     <span className="text-muted-foreground font-normal">(opcional)</span>
                   </label>
@@ -248,11 +210,7 @@ export function LoginPage() {
                 disabled={isSubmitting}
                 className="w-full bg-accent hover:bg-accent/90 disabled:opacity-60 text-accent-foreground py-3 rounded-xl transition-colors font-medium shadow-sm mt-2"
               >
-                {isSubmitting
-                  ? "Aguarde..."
-                  : isLogin
-                  ? "Entrar"
-                  : "Criar conta"}
+                {isSubmitting ? "Aguarde..." : isLogin ? "Entrar" : "Criar conta"}
               </button>
             </form>
 
