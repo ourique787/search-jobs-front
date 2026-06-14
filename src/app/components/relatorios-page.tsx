@@ -4,7 +4,7 @@ import {
   FileText,
   TrendingUp,
   Building2,
-  Code2,
+  Layers,
   ExternalLink,
   Filter,
   RefreshCw,
@@ -19,11 +19,11 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
 import { Header } from "./header";
 import { api } from "@/services/api";
 import { SENIORIDADE_DISPLAY } from "@/types";
+import { formatTitle } from "@/utils/format";
 import type { RelatorioDTO, Senioridade, Stack } from "@/types";
 
 // ── Constantes ──────────────────────────────────────────────────────────────
@@ -36,28 +36,24 @@ const SENIORITY_OPTIONS: { value: Senioridade; label: string }[] = [
   { value: "NAO_INFORMADO", label: "Não Informado" },
 ];
 
-const CHART_COLORS = [
-  "#4F46E5",
-  "#7C3AED",
-  "#059669",
-  "#2563EB",
-  "#D97706",
-  "#DC2626",
-  "#0891B2",
-  "#9333EA",
-];
+// Uniform chart color: all bars use the brand indigo.
+// Bars are distinguished by their axis label and height — never by color.
+const CHART_PRIMARY = "var(--primary)";
 
 const DIA_ABBR: Record<string, string> = {
   SEGUNDA: "Seg",
-  TERÇA: "Ter",
-  QUARTA: "Qua",
-  QUINTA: "Qui",
-  SEXTA: "Sex",
-  SÁBADO: "Sáb",
+  TERÇA:   "Ter",
+  QUARTA:  "Qua",
+  QUINTA:  "Qui",
+  SEXTA:   "Sex",
+  SÁBADO:  "Sáb",
   DOMINGO: "Dom",
 };
 
 const ITEMS_PER_PAGE = 10;
+
+// Names to exclude from "Top" computations (unknown/null categories).
+const UNKNOWN_NAMES = new Set(["", "Não Informado", "NAO_INFORMADO", "Não informado"]);
 
 // ── Utilitários ─────────────────────────────────────────────────────────────
 
@@ -71,11 +67,8 @@ function formatMonth(ym: string): string {
 }
 
 function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit", month: "2-digit", year: "numeric",
   });
 }
 
@@ -84,6 +77,7 @@ function topEntries(
   n = 8
 ): { name: string; value: number }[] {
   return Object.entries(map)
+    .filter(([name]) => !UNKNOWN_NAMES.has(name))
     .sort((a, b) => b[1] - a[1])
     .slice(0, n)
     .map(([name, value]) => ({ name, value }));
@@ -96,29 +90,22 @@ function StatCard({
   value,
   sub,
   icon: Icon,
-  accent = false,
 }: {
   label: string;
   value: string | number;
   sub?: string;
   icon: React.ElementType;
-  accent?: boolean;
 }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4 sm:p-5 flex flex-col gap-3">
       <div className="flex items-center gap-2">
-        <div
-          className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0"
-        >
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
           <Icon className="w-4 h-4 text-primary" />
         </div>
         <p className="text-xs text-muted-foreground leading-tight">{label}</p>
       </div>
       <div>
-        <p
-          className="text-2xl font-bold text-foreground truncate"
-          title={String(value)}
-        >
+        <p className="text-2xl font-bold text-foreground truncate" title={String(value)}>
           {value}
         </p>
         {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
@@ -147,17 +134,19 @@ const CustomTooltip = ({
   return null;
 };
 
-function ChartCard({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
+function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
       <h3 className="text-sm font-semibold text-foreground mb-5">{title}</h3>
       {children}
+    </div>
+  );
+}
+
+function ChartEmpty() {
+  return (
+    <div className="h-[200px] flex items-center justify-center">
+      <p className="text-sm text-muted-foreground">Nenhum dado no período</p>
     </div>
   );
 }
@@ -178,6 +167,15 @@ export function RelatoriosPage() {
   const [selectedSeniorities, setSelectedSeniorities] = useState<Senioridade[]>([]);
   const [selectedStackIds, setSelectedStackIds] = useState<number[]>([]);
   const [stackSearch, setStackSearch] = useState("");
+  // "todo" | days number = active preset; null = custom interval (user typed dates manually)
+  const [activePreset, setActivePreset] = useState<"todo" | number | null>("todo");
+  // Snapshot of the filters that produced the currently displayed report
+  const [appliedFilters, setAppliedFilters] = useState({
+    dataInicio: "",
+    dataFim: "",
+    stackIds: [] as number[],
+    senioridades: [] as Senioridade[],
+  });
 
   useEffect(() => {
     api.stacks.list().then(setStacks).catch(() => {});
@@ -197,15 +195,19 @@ export function RelatoriosPage() {
       const data = await api.relatorio.gerar(params);
       setRelatorio(data);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Erro ao gerar relatório."
-      );
+      setError(err instanceof Error ? err.message : "Erro ao gerar relatório.");
     } finally {
       setIsLoading(false);
     }
   }
 
   function handleGerar() {
+    setAppliedFilters({
+      dataInicio,
+      dataFim,
+      stackIds: [...selectedStackIds],
+      senioridades: [...selectedSeniorities],
+    });
     loadRelatorio({
       dataInicio: dataInicio || undefined,
       dataFim: dataFim || undefined,
@@ -220,48 +222,64 @@ export function RelatoriosPage() {
     setSelectedSeniorities([]);
     setSelectedStackIds([]);
     setStackSearch("");
+    setActivePreset("todo");
   }
 
-  function setPreset(days: number | null) {
-    if (days === null) {
-      setDataInicio("");
-      setDataFim("");
-      return;
-    }
+  function setPreset(value: "todo" | number) {
+    setActivePreset(value);
+    if (value === "todo") { setDataInicio(""); setDataFim(""); return; }
     const fim = new Date();
     const inicio = new Date();
-    inicio.setDate(inicio.getDate() - days);
+    inicio.setDate(inicio.getDate() - (value as number));
     setDataFim(fim.toISOString().slice(0, 10));
     setDataInicio(inicio.toISOString().slice(0, 10));
+  }
+
+  function handleDateChange(field: "inicio" | "fim", value: string) {
+    setActivePreset(null); // user diverged from any preset → custom interval
+    if (field === "inicio") setDataInicio(value);
+    else setDataFim(value);
   }
 
   const filteredStacks = stacks.filter((s) =>
     s.nome.toLowerCase().includes(stackSearch.toLowerCase())
   );
 
+  // Selected stacks always visible at top, regardless of search query
+  const selectedStacks = stacks.filter((s) => selectedStackIds.includes(s.id));
+  const unselectedFiltered = filteredStacks.filter((s) => !selectedStackIds.includes(s.id));
+
   const hasFilters =
-    !!dataInicio ||
-    !!dataFim ||
-    selectedSeniorities.length > 0 ||
-    selectedStackIds.length > 0;
+    !!dataInicio || !!dataFim ||
+    selectedSeniorities.length > 0 || selectedStackIds.length > 0;
 
-  // Dados dos gráficos
-  const porMesData =
-    relatorio
-      ? Object.entries(relatorio.resumo.distribuicaoTemporal.porMes).map(
-          ([k, v]) => ({ name: formatMonth(k), value: v })
-        )
-      : [];
+  // True when the form differs from the last applied state (report is stale)
+  const isDirty =
+    relatorio !== null && (
+      dataInicio !== appliedFilters.dataInicio ||
+      dataFim !== appliedFilters.dataFim ||
+      selectedStackIds.length !== appliedFilters.stackIds.length ||
+      selectedStackIds.some((id) => !appliedFilters.stackIds.includes(id)) ||
+      selectedSeniorities.length !== appliedFilters.senioridades.length ||
+      selectedSeniorities.some((s) => !appliedFilters.senioridades.includes(s))
+    );
 
-  const porDiaData =
-    relatorio
-      ? Object.entries(relatorio.resumo.distribuicaoTemporal.porDiaDaSemana).map(
-          ([k, v]) => ({ name: DIA_ABBR[k] ?? k, value: v })
-        )
-      : [];
+  // ── Dados dos gráficos ────────────────────────────────────────────────────
 
-  const porStackData = relatorio ? topEntries(relatorio.resumo.porStack) : [];
-  const porFonteData = relatorio ? topEntries(relatorio.resumo.porFonte) : [];
+  const porMesData = relatorio
+    ? Object.entries(relatorio.resumo.distribuicaoTemporal.porMes).map(
+        ([k, v]) => ({ name: formatMonth(k), value: v })
+      )
+    : [];
+
+  const porDiaData = relatorio
+    ? Object.entries(relatorio.resumo.distribuicaoTemporal.porDiaDaSemana).map(
+        ([k, v]) => ({ name: DIA_ABBR[k] ?? k, value: v })
+      )
+    : [];
+
+  const porStackData    = relatorio ? topEntries(relatorio.resumo.porStack)   : [];
+  const porFonteData    = relatorio ? topEntries(relatorio.resumo.porFonte)   : [];
 
   const porSenioridadeData = relatorio
     ? Object.entries(relatorio.resumo.porSenioridade).map(([k, v]) => ({
@@ -271,10 +289,25 @@ export function RelatoriosPage() {
     : [];
 
   const topFonte = porFonteData[0];
-  const topSenioridade = [...porSenioridadeData].sort(
-    (a, b) => b.value - a.value
-  )[0];
-  const topStack = porStackData[0];
+
+  // Exclude unknowns from "Top" card values
+  const topSenioridade = [...porSenioridadeData]
+    .filter((e) => !UNKNOWN_NAMES.has(e.name))
+    .sort((a, b) => b.value - a.value)[0];
+
+  const topStack = porStackData[0]; // topEntries already filters unknowns
+
+  // Period label for filter banner
+  const periodLabel = (() => {
+    if (!relatorio) return "";
+    const i = relatorio.filtrosAplicados.dataInicio;
+    const f = relatorio.filtrosAplicados.dataFim;
+    const empty = (v: string) => !v || v === "Sem limite";
+    if (empty(i) && empty(f)) return "Todo o período";
+    if (empty(i)) return `Até ${f}`;
+    if (empty(f)) return `A partir de ${i}`;
+    return `${i} → ${f}`;
+  })();
 
   // Paginação
   const paginatedCandidaturas =
@@ -282,9 +315,7 @@ export function RelatoriosPage() {
       (page - 1) * ITEMS_PER_PAGE,
       page * ITEMS_PER_PAGE
     ) ?? [];
-  const totalPages = Math.ceil(
-    (relatorio?.candidaturas.length ?? 0) / ITEMS_PER_PAGE
-  );
+  const totalPages = Math.ceil((relatorio?.candidaturas.length ?? 0) / ITEMS_PER_PAGE);
 
   return (
     <div className="min-h-screen bg-background">
@@ -302,53 +333,48 @@ export function RelatoriosPage() {
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* ── Sidebar de Filtros ─────────────────────────────────────────── */}
-          <div
-            className={`lg:flex-shrink-0 ${showFilters ? "block" : "hidden lg:block"}`}
-          >
+          <div className={`lg:flex-shrink-0 ${showFilters ? "block" : "hidden lg:block"}`}>
             <aside className="w-full lg:w-72 bg-card border border-border rounded-xl p-4 sm:p-6 h-fit sticky top-24">
               <div className="flex items-center gap-2 mb-5">
                 <BarChart2 className="w-4 h-4 text-primary" />
-                <h2 className="text-base font-semibold text-foreground">
-                  Filtros do Relatório
-                </h2>
+                <h2 className="text-base font-semibold text-foreground">Filtros do Relatório</h2>
               </div>
 
-              {/* Atalhos de período */}
+              {/* Período — presets + intervalo como um único controle */}
               <div className="mb-5">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-                  Período Rápido
+                <p className="text-xs sm:text-sm font-medium text-foreground mb-3 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Período
                 </p>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {[
-                    { label: "Última semana", days: 7 },
-                    { label: "Último mês", days: 30 },
-                    { label: "3 meses", days: 90 },
-                    { label: "Todo período", days: null },
-                  ].map(({ label, days }) => (
+                {/* Atalhos rápidos */}
+                <div className="grid grid-cols-2 gap-1.5 mb-3">
+                  {([
+                    { label: "Última semana", value: 7 },
+                    { label: "Último mês",    value: 30 },
+                    { label: "3 meses",       value: 90 },
+                    { label: "Todo período",  value: "todo" },
+                  ] as { label: string; value: "todo" | number }[]).map(({ label, value }) => (
                     <button
                       key={label}
-                      onClick={() => setPreset(days)}
-                      className="text-xs px-2 py-1.5 bg-secondary hover:bg-accent/20 hover:text-primary border border-border rounded-lg transition-colors text-left"
+                      onClick={() => setPreset(value)}
+                      className={`text-xs px-2 py-1.5 rounded-lg border transition-colors text-left ${
+                        activePreset === value
+                          ? "bg-primary/10 text-primary border-primary/30"
+                          : "bg-secondary hover:bg-accent/10 hover:text-primary border-border"
+                      }`}
                     >
                       {label}
                     </button>
                   ))}
                 </div>
-              </div>
-
-              {/* Intervalo de datas */}
-              <div className="mb-5">
-                <p className="text-xs sm:text-sm font-medium text-foreground mb-3 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" />
-                  Intervalo de Datas
-                </p>
+                {/* Intervalo manual */}
                 <div className="space-y-2">
                   <div>
                     <label className="text-xs text-muted-foreground">De</label>
                     <input
                       type="date"
                       value={dataInicio}
-                      onChange={(e) => setDataInicio(e.target.value)}
+                      onChange={(e) => handleDateChange("inicio", e.target.value)}
                       className="w-full mt-1 px-3 py-2 bg-input-background border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
                     />
                   </div>
@@ -357,7 +383,7 @@ export function RelatoriosPage() {
                     <input
                       type="date"
                       value={dataFim}
-                      onChange={(e) => setDataFim(e.target.value)}
+                      onChange={(e) => handleDateChange("fim", e.target.value)}
                       className="w-full mt-1 px-3 py-2 bg-input-background border border-input rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
                     />
                   </div>
@@ -366,15 +392,10 @@ export function RelatoriosPage() {
 
               {/* Senioridade */}
               <div className="mb-5">
-                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">
-                  Senioridade
-                </p>
+                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">Senioridade</p>
                 <div className="space-y-2">
                   {SENIORITY_OPTIONS.map(({ value, label }) => (
-                    <label
-                      key={value}
-                      className="flex items-center gap-3 cursor-pointer group"
-                    >
+                    <label key={value} className="flex items-center gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
                         checked={selectedSeniorities.includes(value)}
@@ -397,9 +418,7 @@ export function RelatoriosPage() {
 
               {/* Tecnologias */}
               <div className="mb-6">
-                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">
-                  Tecnologias
-                </p>
+                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">Tecnologias</p>
                 <div className="relative mb-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
@@ -410,21 +429,38 @@ export function RelatoriosPage() {
                     className="w-full pl-9 pr-3 py-2 bg-input-background border border-input rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
                   />
                 </div>
-                <div className="space-y-2 max-h-48 overflow-y-auto custom-scrollbar pr-1">
-                  {filteredStacks.map((stack) => (
-                    <label
-                      key={stack.id}
-                      className="flex items-center gap-3 cursor-pointer group"
-                    >
+                {/* Selected stacks pinned above the scrollable list */}
+                {selectedStacks.length > 0 && (
+                  <div className="space-y-2 mb-1">
+                    {selectedStacks.map((stack) => (
+                      <label key={stack.id} className="flex items-center gap-3 cursor-pointer group">
+                        <input
+                          type="checkbox"
+                          checked
+                          onChange={() =>
+                            setSelectedStackIds((prev) => prev.filter((id) => id !== stack.id))
+                          }
+                          className="w-4 h-4 rounded border-border accent-[#6366F1]"
+                        />
+                        <span className="text-sm text-primary font-medium">
+                          {stack.nome}
+                        </span>
+                      </label>
+                    ))}
+                    {unselectedFiltered.length > 0 && (
+                      <div className="border-t border-border" />
+                    )}
+                  </div>
+                )}
+                {/* Unselected, filtered by search — scrollable only when needed */}
+                <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                  {unselectedFiltered.map((stack) => (
+                    <label key={stack.id} className="flex items-center gap-3 cursor-pointer group">
                       <input
                         type="checkbox"
-                        checked={selectedStackIds.includes(stack.id)}
+                        checked={false}
                         onChange={() =>
-                          setSelectedStackIds((prev) =>
-                            prev.includes(stack.id)
-                              ? prev.filter((id) => id !== stack.id)
-                              : [...prev, stack.id]
-                          )
+                          setSelectedStackIds((prev) => [...prev, stack.id])
                         }
                         className="w-4 h-4 rounded border-border accent-[#6366F1]"
                       />
@@ -433,7 +469,7 @@ export function RelatoriosPage() {
                       </span>
                     </label>
                   ))}
-                  {filteredStacks.length === 0 && (
+                  {unselectedFiltered.length === 0 && selectedStacks.length === 0 && (
                     <p className="text-xs text-muted-foreground py-2">
                       Nenhuma tecnologia encontrada.
                     </p>
@@ -442,14 +478,19 @@ export function RelatoriosPage() {
               </div>
 
               {/* Ações */}
+              {isDirty && (
+                <p className="text-xs text-muted-foreground text-center mb-2">
+                  Alterações não aplicadas
+                </p>
+              )}
               <button
                 onClick={handleGerar}
                 disabled={isLoading}
-                className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-colors disabled:opacity-60 flex items-center justify-center gap-2 mb-2 shadow-sm"
+                className={`w-full py-2.5 bg-primary text-primary-foreground rounded-xl font-medium hover:bg-primary/90 transition-all disabled:opacity-60 flex items-center justify-center gap-2 mb-2 shadow-sm ${
+                  isDirty ? "ring-2 ring-offset-2 ring-primary/30" : ""
+                }`}
               >
-                <RefreshCw
-                  className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
-                />
+                <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
                 Gerar Relatório
               </button>
 
@@ -467,9 +508,7 @@ export function RelatoriosPage() {
           {/* ── Conteúdo principal ─────────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
             <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">
-                Relatórios
-              </h1>
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Relatórios</h1>
               <p className="text-sm text-muted-foreground">
                 {relatorio && !isLoading
                   ? `Gerado em ${formatDateTime(relatorio.geradoEm)} · ${relatorio.resumo.totalCandidaturas} registro${relatorio.resumo.totalCandidaturas !== 1 ? "s" : ""}`
@@ -477,14 +516,12 @@ export function RelatoriosPage() {
               </p>
             </div>
 
-            {/* Carregando */}
             {isLoading && (
               <div className="flex justify-center py-24">
                 <div className="w-9 h-9 border-4 border-accent border-t-transparent rounded-full animate-spin" />
               </div>
             )}
 
-            {/* Erro */}
             {error && !isLoading && (
               <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-6 text-center">
                 <p className="text-destructive font-medium mb-1">{error}</p>
@@ -494,24 +531,20 @@ export function RelatoriosPage() {
               </div>
             )}
 
-            {/* Relatório */}
             {relatorio && !isLoading && (
               <>
                 {/* Banner de filtros aplicados */}
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 mb-6 flex flex-wrap gap-2 items-center">
-                  <span className="text-xs font-semibold text-primary">
-                    Filtros:
-                  </span>
+                  <span className="text-xs font-semibold text-primary">Período:</span>
                   <span className="text-xs bg-card border border-border rounded-full px-2.5 py-0.5 text-muted-foreground">
-                    {relatorio.filtrosAplicados.dataInicio} →{" "}
-                    {relatorio.filtrosAplicados.dataFim}
+                    {periodLabel}
                   </span>
                   {relatorio.filtrosAplicados.stacks
                     .filter((s) => s !== "Todas")
                     .map((s) => (
                       <span
                         key={s}
-                        className="text-xs bg-accent/20 text-primary rounded-full px-2.5 py-0.5"
+                        className="text-xs bg-transparent border border-border text-muted-foreground rounded-full px-2.5 py-0.5"
                       >
                         {s}
                       </span>
@@ -521,7 +554,7 @@ export function RelatoriosPage() {
                     .map((s) => (
                       <span
                         key={s}
-                        className="text-xs bg-accent/20 text-primary rounded-full px-2.5 py-0.5"
+                        className="text-xs bg-transparent border border-border text-muted-foreground rounded-full px-2.5 py-0.5"
                       >
                         {s}
                       </span>
@@ -535,7 +568,6 @@ export function RelatoriosPage() {
                     value={relatorio.resumo.totalCandidaturas}
                     sub="vagas clicadas no período"
                     icon={FileText}
-                    accent
                   />
                   <StatCard
                     label="Fonte Principal"
@@ -546,233 +578,116 @@ export function RelatoriosPage() {
                   <StatCard
                     label="Senioridade Top"
                     value={topSenioridade?.name ?? "—"}
-                    sub={
-                      topSenioridade
-                        ? `${topSenioridade.value} vagas`
-                        : undefined
-                    }
+                    sub={topSenioridade ? `${topSenioridade.value} vagas` : "Sem dados suficientes"}
                     icon={TrendingUp}
                   />
                   <StatCard
                     label="Tecnologia Top"
                     value={topStack?.name ?? "—"}
                     sub={topStack ? `${topStack.value} vagas` : undefined}
-                    icon={Code2}
+                    icon={Layers}
                   />
                 </div>
 
                 {relatorio.resumo.totalCandidaturas > 0 ? (
                   <>
-                    {/* Gráficos - grade 2 colunas */}
+                    {/* Gráficos */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-                      {/* Por mês */}
-                      {porMesData.length > 0 && (
-                        <ChartCard title="Visualizações por Mês">
+
+                      {/* Visualizações por Mês — always shown; empty state inside */}
+                      <ChartCard title="Visualizações por Mês">
+                        {porMesData.length === 0 ? <ChartEmpty /> : (
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart
                               data={porMesData}
                               margin={{ top: 0, right: 4, left: -20, bottom: 0 }}
+                              barCategoryGap="40%"
                             >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="var(--border)"
-                                vertical={false}
-                              />
-                              <XAxis
-                                dataKey="name"
-                                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                                axisLine={false}
-                                tickLine={false}
-                              />
-                              <YAxis
-                                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                                allowDecimals={false}
-                                axisLine={false}
-                                tickLine={false}
-                              />
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
-                              <Bar
-                                dataKey="value"
-                                fill="var(--primary)"
-                                radius={[4, 4, 0, 0]}
-                              />
+                              <Bar dataKey="value" fill={CHART_PRIMARY} radius={[4, 4, 0, 0]} maxBarSize={48} />
                             </BarChart>
                           </ResponsiveContainer>
-                        </ChartCard>
-                      )}
-
-                      {/* Por dia da semana */}
-                      <ChartCard title="Por Dia da Semana">
-                        <ResponsiveContainer width="100%" height={200}>
-                          <BarChart
-                            data={porDiaData}
-                            margin={{ top: 0, right: 4, left: -20, bottom: 0 }}
-                          >
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                              stroke="var(--border)"
-                              vertical={false}
-                            />
-                            <XAxis
-                              dataKey="name"
-                              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <YAxis
-                              tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                              allowDecimals={false}
-                              axisLine={false}
-                              tickLine={false}
-                            />
-                            <Tooltip content={<CustomTooltip />} />
-                            <Bar
-                              dataKey="value"
-                              fill="var(--chart-2)"
-                              radius={[4, 4, 0, 0]}
-                            />
-                          </BarChart>
-                        </ResponsiveContainer>
+                        )}
                       </ChartCard>
 
-                      {/* Por fonte */}
+                      {/* Por Dia da Semana */}
+                      <ChartCard title="Por Dia da Semana">
+                        {porDiaData.length === 0 ? <ChartEmpty /> : (
+                          <ResponsiveContainer width="100%" height={200}>
+                            <BarChart data={porDiaData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
+                              <Tooltip content={<CustomTooltip />} />
+                              <Bar dataKey="value" fill={CHART_PRIMARY} radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                          </ResponsiveContainer>
+                        )}
+                      </ChartCard>
+
+                      {/* Vagas por Fonte — ranked: top bar full indigo, rest muted */}
                       {porFonteData.length > 0 && (
                         <ChartCard title="Vagas por Fonte">
                           <ResponsiveContainer width="100%" height={200}>
-                            <BarChart
-                              data={porFonteData}
-                              margin={{ top: 0, right: 4, left: -20, bottom: 0 }}
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="var(--border)"
-                                vertical={false}
-                              />
-                              <XAxis
-                                dataKey="name"
-                                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                                axisLine={false}
-                                tickLine={false}
-                              />
-                              <YAxis
-                                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                                allowDecimals={false}
-                                axisLine={false}
-                                tickLine={false}
-                              />
+                            <BarChart data={porFonteData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
-                              <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                                {porFonteData.map((_, i) => (
-                                  <Cell
-                                    key={i}
-                                    fill={CHART_COLORS[i % CHART_COLORS.length]}
-                                  />
-                                ))}
-                              </Bar>
+                              <Bar dataKey="value" fill={CHART_PRIMARY} radius={[4, 4, 0, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
                         </ChartCard>
                       )}
 
-                      {/* Por senioridade */}
+                      {/* Por Senioridade — single color */}
                       {porSenioridadeData.length > 0 && (
                         <ChartCard title="Por Senioridade">
                           <ResponsiveContainer width="100%" height={200}>
-                            <BarChart
-                              data={porSenioridadeData}
-                              margin={{ top: 0, right: 4, left: -20, bottom: 0 }}
-                            >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="var(--border)"
-                                vertical={false}
-                              />
-                              <XAxis
-                                dataKey="name"
-                                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                                axisLine={false}
-                                tickLine={false}
-                              />
-                              <YAxis
-                                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                                allowDecimals={false}
-                                axisLine={false}
-                                tickLine={false}
-                              />
+                            <BarChart data={porSenioridadeData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
-                              <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                                {porSenioridadeData.map((_, i) => (
-                                  <Cell
-                                    key={i}
-                                    fill={CHART_COLORS[i % CHART_COLORS.length]}
-                                  />
-                                ))}
-                              </Bar>
+                              <Bar dataKey="value" fill={CHART_PRIMARY} radius={[4, 4, 0, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
                         </ChartCard>
                       )}
                     </div>
 
-                    {/* Top Tecnologias — gráfico horizontal */}
+                    {/* Top Tecnologias — ranked horizontal */}
                     {porStackData.length > 0 && (
                       <div className="mb-6">
-                        <ChartCard
-                          title={`Top ${porStackData.length} Tecnologias`}
-                        >
-                          <ResponsiveContainer
-                            width="100%"
-                            height={porStackData.length * 38 + 16}
-                          >
+                        <ChartCard title={`Top ${porStackData.length} Tecnologias`}>
+                          <ResponsiveContainer width="100%" height={porStackData.length * 38 + 16}>
                             <BarChart
                               data={porStackData}
                               layout="vertical"
                               margin={{ top: 0, right: 30, left: 4, bottom: 0 }}
                             >
-                              <CartesianGrid
-                                strokeDasharray="3 3"
-                                stroke="var(--border)"
-                                horizontal={false}
-                              />
-                              <XAxis
-                                type="number"
-                                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                                allowDecimals={false}
-                                axisLine={false}
-                                tickLine={false}
-                              />
-                              <YAxis
-                                type="category"
-                                dataKey="name"
-                                tick={{ fontSize: 11, fill: "var(--muted-foreground)" }}
-                                width={90}
-                                axisLine={false}
-                                tickLine={false}
-                              />
+                              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
+                              <XAxis type="number" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
+                              <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} width={90} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
-                              <Bar dataKey="value" radius={[0, 4, 4, 0]}>
-                                {porStackData.map((_, i) => (
-                                  <Cell
-                                    key={i}
-                                    fill={CHART_COLORS[i % CHART_COLORS.length]}
-                                  />
-                                ))}
-                              </Bar>
+                              <Bar dataKey="value" fill={CHART_PRIMARY} radius={[0, 4, 4, 0]} />
                             </BarChart>
                           </ResponsiveContainer>
                         </ChartCard>
                       </div>
                     )}
 
-                    {/* Tabela de candidaturas */}
+                    {/* Tabela de vagas visualizadas */}
                     <div className="bg-card border border-border rounded-xl overflow-hidden">
                       <div className="px-4 sm:px-6 py-4 border-b border-border flex items-center justify-between">
                         <h3 className="font-semibold text-foreground text-sm sm:text-base">
                           Vagas Visualizadas
                         </h3>
                         <span className="text-xs text-muted-foreground bg-secondary rounded-full px-2.5 py-0.5">
-                          {relatorio.candidaturas.length} registro
-                          {relatorio.candidaturas.length !== 1 ? "s" : ""}
+                          {relatorio.candidaturas.length} registro{relatorio.candidaturas.length !== 1 ? "s" : ""}
                         </span>
                       </div>
 
@@ -785,9 +700,6 @@ export function RelatoriosPage() {
                               </th>
                               <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">
                                 Vaga
-                              </th>
-                              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden sm:table-cell">
-                                Empresa
                               </th>
                               <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden md:table-cell">
                                 Senioridade
@@ -812,31 +724,30 @@ export function RelatoriosPage() {
                                 <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
                                   {formatDateTime(c.dataInteracao)}
                                 </td>
-                                <td className="px-4 py-3 font-medium text-foreground max-w-[180px] truncate">
-                                  {c.titulo}
-                                </td>
-                                <td className="px-4 py-3 text-muted-foreground text-sm hidden sm:table-cell max-w-[140px] truncate">
-                                  {c.empresa}
+                                <td className="px-4 py-3 font-medium text-foreground max-w-[220px] truncate">
+                                  {formatTitle(c.titulo)}
                                 </td>
                                 <td className="px-4 py-3 hidden md:table-cell">
-                                  <span className="text-xs bg-primary/10 text-primary rounded-full px-2.5 py-0.5 whitespace-nowrap">
-                                    {c.senioridade
-                                      ? SENIORIDADE_DISPLAY[c.senioridade]
-                                      : "—"}
-                                  </span>
+                                  {c.senioridade ? (
+                                    <span className="text-xs bg-secondary text-secondary-foreground rounded-full px-2.5 py-0.5 whitespace-nowrap">
+                                      {SENIORIDADE_DISPLAY[c.senioridade]}
+                                    </span>
+                                  ) : (
+                                    <span className="text-xs text-muted-foreground">—</span>
+                                  )}
                                 </td>
                                 <td className="px-4 py-3 hidden lg:table-cell">
                                   <div className="flex flex-wrap gap-1 max-w-[200px]">
                                     {c.stacks.slice(0, 3).map((s) => (
                                       <span
                                         key={s}
-                                        className="text-xs bg-accent/20 text-primary rounded-full px-2 py-0.5"
+                                        className="text-xs bg-transparent border border-border text-muted-foreground rounded-full px-2 py-0.5"
                                       >
                                         {s}
                                       </span>
                                     ))}
                                     {c.stacks.length > 3 && (
-                                      <span className="text-xs text-muted-foreground self-center">
+                                      <span className="text-xs text-muted-foreground/70 self-center">
                                         +{c.stacks.length - 3}
                                       </span>
                                     )}
@@ -850,7 +761,7 @@ export function RelatoriosPage() {
                                     href={c.linkOriginal}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="inline-flex items-center justify-center w-7 h-7 rounded-lg hover:bg-accent/20 text-primary transition-colors"
+                                    className="inline-flex items-center justify-center w-7 h-7 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                                     title="Abrir vaga"
                                   >
                                     <ExternalLink className="w-4 h-4" />
@@ -862,12 +773,10 @@ export function RelatoriosPage() {
                         </table>
                       </div>
 
-                      {/* Paginação */}
                       {totalPages > 1 && (
                         <div className="px-4 sm:px-6 py-4 border-t border-border flex items-center justify-between">
                           <p className="text-xs text-muted-foreground">
-                            Página {page} de {totalPages} ·{" "}
-                            {relatorio.candidaturas.length} registros
+                            Página {page} de {totalPages} · {relatorio.candidaturas.length} registros
                           </p>
                           <div className="flex gap-2">
                             <button
@@ -878,9 +787,7 @@ export function RelatoriosPage() {
                               Anterior
                             </button>
                             <button
-                              onClick={() =>
-                                setPage((p) => Math.min(totalPages, p + 1))
-                              }
+                              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                               disabled={page === totalPages}
                               className="px-3 py-1.5 text-xs bg-secondary hover:bg-secondary/70 rounded-lg disabled:opacity-40 transition-colors font-medium"
                             >
@@ -892,15 +799,11 @@ export function RelatoriosPage() {
                     </div>
                   </>
                 ) : (
-                  /* Estado vazio */
                   <div className="bg-card border border-border rounded-xl py-20 text-center">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-                    <p className="text-foreground font-medium mb-1">
-                      Nenhuma vaga encontrada
-                    </p>
+                    <p className="text-foreground font-medium mb-1">Nenhuma vaga encontrada</p>
                     <p className="text-muted-foreground text-sm">
-                      Ajuste os filtros ou clique em vagas para que elas apareçam
-                      aqui.
+                      Ajuste os filtros ou clique em vagas para que elas apareçam aqui.
                     </p>
                   </div>
                 )}

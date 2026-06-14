@@ -2,6 +2,7 @@ import { Briefcase, Clock } from "lucide-react";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job } from "@/types";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatTitle } from "@/utils/format";
 
 const EMPRESA_DESCONHECIDA = "Não informada";
 
@@ -27,18 +28,6 @@ function timeAgo(iso: string): string {
   if (days === 0) return "Hoje";
   if (days === 1) return "1 dia atrás";
   return `${days} dias atrás`;
-}
-
-function formatTitle(title: string): string {
-  return title
-    .replace(/\s*\(\s*([^)]*?)\s*\)\s*/g, (_, inner) => {
-      const trimmed = inner.trim();
-      // Pure numeric/code (no spaces, contains digits): remove
-      if (/^[\w-]+$/.test(trimmed) && /\d/.test(trimmed)) return ' ';
-      return ` (${trimmed.replace(/\s+/g, ' ')}) `;
-    })
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 export function JobCard({ job, isSelected, onClick }: JobCardProps) {
