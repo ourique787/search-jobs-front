@@ -145,7 +145,7 @@ export function DashboardPage() {
                   </button>
                 </div>
 
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs font-mono text-muted-foreground">
                   {isLoading
                     ? "Carregando..."
                     : `${filteredJobs.length} vaga${filteredJobs.length !== 1 ? "s" : ""} encontrada${filteredJobs.length !== 1 ? "s" : ""}`}
@@ -178,7 +178,7 @@ export function DashboardPage() {
                           <button
                             key={s}
                             onClick={() => toggleSeniority(s)}
-                            className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                            className={`px-3 py-1 rounded-full text-xs font-mono normal-case border transition-colors ${
                               selectedSeniorities.includes(s)
                                 ? "bg-primary/10 text-primary border-primary/30"
                                 : "bg-transparent border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
@@ -220,7 +220,7 @@ export function DashboardPage() {
                           <button
                             key={stack.id}
                             onClick={() => toggleTech(stack.nome)}
-                            className={`px-2.5 py-0.5 rounded-full text-xs border transition-colors ${
+                            className={`px-2.5 py-0.5 rounded-full text-xs font-mono normal-case border transition-colors ${
                               selectedTechs.includes(stack.nome)
                                 ? "bg-primary/10 text-primary border-primary/30"
                                 : "bg-transparent border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"

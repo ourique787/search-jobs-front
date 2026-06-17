@@ -30,7 +30,7 @@ export function TrendingWidget({ jobs }: TrendingWidgetProps) {
       <div className="bg-card border border-border rounded-xl p-4 sm:p-6 mb-4">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp className="w-5 h-5 text-primary" />
-          <h3 className="font-semibold text-foreground text-sm sm:text-base">
+          <h3 className="font-display font-medium text-foreground text-sm sm:text-base">
             Tendências da Semana
           </h3>
         </div>
@@ -59,12 +59,12 @@ export function TrendingWidget({ jobs }: TrendingWidgetProps) {
           <div key={item.tech}>
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-muted-foreground">
+                <span className="text-lg font-mono font-medium text-muted-foreground">
                   #{index + 1}
                 </span>
-                <span className="font-medium text-foreground">{item.tech}</span>
+                <span className="font-mono font-medium text-foreground">{item.tech}</span>
               </div>
-              <span className="text-sm font-semibold text-primary">
+              <span className="text-sm font-mono text-primary">
                 {item.count} vaga{item.count !== 1 ? "s" : ""}
               </span>
             </div>
@@ -86,7 +86,7 @@ export function TrendingWidget({ jobs }: TrendingWidgetProps) {
           <BarChart data={trendingData}>
             <XAxis
               dataKey="tech"
-              tick={{ fontSize: 11, fill: "#737373" }}
+              tick={{ fontSize: 11, fill: "#737373", fontFamily: "JetBrains Mono" }}
               axisLine={false}
               tickLine={false}
             />

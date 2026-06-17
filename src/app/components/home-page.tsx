@@ -63,10 +63,10 @@ function TabbedHeroVisual() {
               opacity: 0.88,
             }}
           >
-            <p className="text-[9px] font-semibold text-primary/60 uppercase tracking-wider mb-0.5">
+            <p className="text-[9px] font-mono font-medium text-primary/60 uppercase tracking-wider mb-0.5">
               {card.source}
             </p>
-            <p className="text-[11px] font-semibold text-foreground/80 truncate">{card.title}</p>
+            <p className="text-[11px] font-display font-medium text-foreground/80 truncate">{card.title}</p>
           </div>
         ))}
       </div>
@@ -85,27 +85,27 @@ function TabbedHeroVisual() {
               S
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-semibold text-foreground truncate leading-tight">
+              <p className="text-xs font-display font-medium text-foreground truncate leading-tight">
                 Stefanini
               </p>
-              <p className="text-[10px] text-muted-foreground leading-tight">InfoJobs</p>
+              <p className="text-[10px] font-mono text-muted-foreground leading-tight">InfoJobs</p>
             </div>
           </div>
-          <p className="text-sm font-semibold text-foreground leading-snug mb-2.5">
+          <p className="text-sm font-display font-medium text-foreground leading-snug mb-2.5">
             Dev. Back-End Java Pleno
           </p>
           <div className="flex flex-wrap gap-1 mb-2.5">
-            <span className="text-[10px] bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full font-medium">
+            <span className="text-[10px] font-mono bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
               Pleno
             </span>
-            <span className="text-[10px] border border-border text-muted-foreground px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono border border-border text-muted-foreground px-2 py-0.5 rounded-full">
               Java
             </span>
-            <span className="text-[10px] border border-border text-muted-foreground px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-mono border border-border text-muted-foreground px-2 py-0.5 rounded-full">
               Spring Boot
             </span>
           </div>
-          <span className="inline-flex items-center gap-1 text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+          <span className="inline-flex items-center gap-1 text-[10px] font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-full">
             <Sparkles className="w-2.5 h-2.5" />
             Para você
           </span>
@@ -141,7 +141,7 @@ export function HomePage() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Code2 className="w-4 h-4 text-white" />
             </div>
-            <span className="font-semibold text-foreground">SearchJobs</span>
+            <span className="font-display font-bold text-foreground">SearchJobs</span>
           </div>
           <Link
             to="/login"
@@ -165,7 +165,7 @@ export function HomePage() {
             Agregador de vagas tech
           </span>
 
-          <h1 className="text-5xl lg:text-6xl font-black text-foreground leading-[1.05] mb-5">
+          <h1 className="text-5xl lg:text-6xl font-display font-bold text-foreground leading-[1.05] mb-5">
             Pare de abrir<br />
             <span className="text-primary">dez abas.</span>
           </h1>
@@ -179,13 +179,13 @@ export function HomePage() {
             {SOURCES.map((s) => (
               <span
                 key={s}
-                className="px-2.5 py-1 bg-secondary border border-border rounded-full text-xs font-medium text-foreground"
+                className="px-2.5 py-1 bg-secondary border border-border rounded-full text-xs font-mono text-foreground"
               >
                 {s}
               </span>
             ))}
             {jobCount !== null && (
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm font-mono text-muted-foreground">
                 · {jobCount.toLocaleString("pt-BR")}+ vagas
               </span>
             )}
@@ -223,7 +223,7 @@ export function HomePage() {
       <section id="como-funciona" className="border-t border-border bg-card">
         <div className="max-w-6xl mx-auto px-6 py-16">
           <div className="mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-3">Como funciona</h2>
+            <h2 className="text-3xl font-display font-bold text-foreground mb-3">Como funciona</h2>
             <p className="text-muted-foreground max-w-lg">
               Do robô ao candidato, tudo automatizado para você focar no que importa.
             </p>
@@ -233,10 +233,10 @@ export function HomePage() {
             {STEPS.map((step, i) => (
               <React.Fragment key={step.title}>
                 <div className="flex-1 lg:pr-6">
-                  <span className="block text-6xl font-black text-primary/20 leading-none mb-4 tabular-nums">
+                  <span className="block text-6xl font-mono font-medium text-primary/20 leading-none mb-4 tabular-nums">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <h3 className="font-semibold text-foreground mb-2">{step.title}</h3>
+                  <h3 className="font-display font-medium text-foreground mb-2">{step.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{step.text}</p>
                 </div>
                 {i < STEPS.length - 1 && (
@@ -263,7 +263,7 @@ export function HomePage() {
             {SOURCES.map((source) => (
               <span
                 key={source}
-                className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium text-foreground"
+                className="px-4 py-2 bg-card border border-border rounded-full text-sm font-mono text-foreground"
               >
                 {source}
               </span>
@@ -279,7 +279,7 @@ export function HomePage() {
             <div className="p-10 lg:p-12 grid lg:grid-cols-[1fr_260px] gap-10 items-center">
               {/* Copy */}
               <div>
-                <h2 className="text-4xl lg:text-5xl font-black text-white leading-[1.05] mb-4">
+                <h2 className="text-4xl lg:text-5xl font-display font-bold text-white leading-[1.05] mb-4">
                   Feche as outras<br />nove abas.
                 </h2>
                 <p className="text-white/70 mb-8 max-w-sm leading-relaxed">
@@ -301,7 +301,7 @@ export function HomePage() {
                     <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Code2 className="w-3.5 h-3.5 text-white" />
                     </div>
-                    <span className="text-sm font-semibold text-white">SearchJobs</span>
+                    <span className="text-sm font-display font-bold text-white">SearchJobs</span>
                   </div>
                   <div className="space-y-2">
                     {[
@@ -310,7 +310,7 @@ export function HomePage() {
                       "Software Engineer Pleno",
                     ].map((title, i) => (
                       <div key={i} className="bg-white/10 border border-white/10 rounded-lg px-3 py-2">
-                        <p className="text-[11px] font-medium text-white/80 truncate">{title}</p>
+                        <p className="text-[11px] font-display font-medium text-white/80 truncate">{title}</p>
                       </div>
                     ))}
                   </div>
@@ -328,7 +328,7 @@ export function HomePage() {
             <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
               <Code2 className="w-3 h-3 text-white" />
             </div>
-            <span className="font-medium text-foreground">SearchJobs</span>
+            <span className="font-display font-medium text-foreground">SearchJobs</span>
           </div>
           <p>© {new Date().getFullYear()} SearchJobs</p>
         </div>

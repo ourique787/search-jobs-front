@@ -68,40 +68,40 @@ export function JobCard({ job, isSelected, onClick }: JobCardProps) {
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
               {!isUnknown && (
-                <p className="text-xs font-semibold text-foreground truncate leading-tight">
+                <p className="text-xs font-display font-medium text-foreground truncate leading-tight">
                   {job.empresa}
                 </p>
               )}
-              <p className="text-xs text-muted-foreground truncate leading-tight">
+              <p className="text-xs font-mono text-muted-foreground truncate leading-tight">
                 {job.fonte}
               </p>
             </div>
             <div className="flex items-center gap-1 text-muted-foreground flex-shrink-0">
               <Clock className="w-3 h-3" />
-              <span className="text-[12px]">{timeAgo(job.dataColeta)}</span>
+              <span className="text-[12px] font-mono">{timeAgo(job.dataColeta)}</span>
             </div>
           </div>
 
-          <p className={`text-sm font-semibold mt-2 leading-snug line-clamp-2 ${
+          <p className={`text-sm font-display font-medium mt-2 leading-snug line-clamp-2 ${
             isSelected ? "text-primary" : "text-foreground"
           }`}>
             {formatTitle(job.titulo)}
           </p>
 
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-            <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full font-medium whitespace-nowrap">
+            <span className="text-xs font-mono bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full whitespace-nowrap">
               {SENIORIDADE_DISPLAY[job.senioridade]}
             </span>
             {visible.map((s) => (
               <span
                 key={s.id}
-                className="text-xs bg-transparent border border-border text-muted-foreground px-2 py-0.5 rounded-full whitespace-nowrap"
+                className="text-xs font-mono bg-transparent border border-border text-muted-foreground px-2 py-0.5 rounded-full whitespace-nowrap"
               >
                 {s.nome}
               </span>
             ))}
             {hidden > 0 && (
-              <span className="text-xs text-muted-foreground/70 whitespace-nowrap">
+              <span className="text-xs font-mono text-muted-foreground/70 whitespace-nowrap">
                 +{hidden}
               </span>
             )}

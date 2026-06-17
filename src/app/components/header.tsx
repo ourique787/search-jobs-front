@@ -51,7 +51,7 @@ export function Header() {
             <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center">
               <Code2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
             </div>
-            <span className="text-lg sm:text-xl font-semibold text-primary">
+            <span className="text-lg sm:text-xl font-display font-bold text-primary">
               SearchJobs
             </span>
           </div>

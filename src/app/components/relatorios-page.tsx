@@ -105,7 +105,7 @@ function StatCard({
         <p className="text-xs text-muted-foreground leading-tight">{label}</p>
       </div>
       <div>
-        <p className="text-2xl font-bold text-foreground truncate" title={String(value)}>
+        <p className="text-2xl font-mono font-medium text-foreground truncate" title={String(value)}>
           {value}
         </p>
         {sub && <p className="text-xs text-muted-foreground mt-0.5">{sub}</p>}
@@ -127,7 +127,7 @@ const CustomTooltip = ({
     return (
       <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-md">
         <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-        <p className="text-sm font-semibold text-foreground">{payload[0].value}</p>
+        <p className="text-sm font-mono text-foreground">{payload[0].value}</p>
       </div>
     );
   }
@@ -137,7 +137,7 @@ const CustomTooltip = ({
 function ChartCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4 sm:p-6">
-      <h3 className="text-sm font-semibold text-foreground mb-5">{title}</h3>
+      <h3 className="text-sm font-display font-medium text-foreground mb-5">{title}</h3>
       {children}
     </div>
   );
@@ -508,7 +508,7 @@ export function RelatoriosPage() {
           {/* ── Conteúdo principal ─────────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
             <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1">Relatórios</h1>
+              <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1">Relatórios</h1>
               <p className="text-sm text-muted-foreground">
                 {relatorio && !isLoading
                   ? `Gerado em ${formatDateTime(relatorio.geradoEm)} · ${relatorio.resumo.totalCandidaturas} registro${relatorio.resumo.totalCandidaturas !== 1 ? "s" : ""}`
@@ -536,7 +536,7 @@ export function RelatoriosPage() {
                 {/* Banner de filtros aplicados */}
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 mb-6 flex flex-wrap gap-2 items-center">
                   <span className="text-xs font-semibold text-primary">Período:</span>
-                  <span className="text-xs bg-card border border-border rounded-full px-2.5 py-0.5 text-muted-foreground">
+                  <span className="text-xs font-mono bg-card border border-border rounded-full px-2.5 py-0.5 text-muted-foreground">
                     {periodLabel}
                   </span>
                   {relatorio.filtrosAplicados.stacks
@@ -544,7 +544,7 @@ export function RelatoriosPage() {
                     .map((s) => (
                       <span
                         key={s}
-                        className="text-xs bg-transparent border border-border text-muted-foreground rounded-full px-2.5 py-0.5"
+                        className="text-xs font-mono bg-transparent border border-border text-muted-foreground rounded-full px-2.5 py-0.5"
                       >
                         {s}
                       </span>
@@ -554,7 +554,7 @@ export function RelatoriosPage() {
                     .map((s) => (
                       <span
                         key={s}
-                        className="text-xs bg-transparent border border-border text-muted-foreground rounded-full px-2.5 py-0.5"
+                        className="text-xs font-mono bg-transparent border border-border text-muted-foreground rounded-full px-2.5 py-0.5"
                       >
                         {s}
                       </span>
@@ -604,8 +604,8 @@ export function RelatoriosPage() {
                               barCategoryGap="40%"
                             >
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
-                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} allowDecimals={false} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
                               <Bar dataKey="value" fill={CHART_PRIMARY} radius={[4, 4, 0, 0]} maxBarSize={48} />
                             </BarChart>
@@ -619,8 +619,8 @@ export function RelatoriosPage() {
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={porDiaData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
-                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} allowDecimals={false} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
                               <Bar dataKey="value" fill={CHART_PRIMARY} radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -634,8 +634,8 @@ export function RelatoriosPage() {
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={porFonteData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
-                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} allowDecimals={false} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
                               <Bar dataKey="value" fill={CHART_PRIMARY} radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -649,8 +649,8 @@ export function RelatoriosPage() {
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={porSenioridadeData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
-                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
-                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
+                              <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
+                              <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} allowDecimals={false} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
                               <Bar dataKey="value" fill={CHART_PRIMARY} radius={[4, 4, 0, 0]} />
                             </BarChart>
@@ -670,8 +670,8 @@ export function RelatoriosPage() {
                               margin={{ top: 0, right: 30, left: 4, bottom: 0 }}
                             >
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
-                              <XAxis type="number" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} allowDecimals={false} axisLine={false} tickLine={false} />
-                              <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} width={90} axisLine={false} tickLine={false} />
+                              <XAxis type="number" tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} allowDecimals={false} axisLine={false} tickLine={false} />
+                              <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "var(--muted-foreground)", fontFamily: "JetBrains Mono" }} width={90} axisLine={false} tickLine={false} />
                               <Tooltip content={<CustomTooltip />} />
                               <Bar dataKey="value" fill={CHART_PRIMARY} radius={[0, 4, 4, 0]} />
                             </BarChart>
@@ -683,10 +683,10 @@ export function RelatoriosPage() {
                     {/* Tabela de vagas visualizadas */}
                     <div className="bg-card border border-border rounded-xl overflow-hidden">
                       <div className="px-4 sm:px-6 py-4 border-b border-border flex items-center justify-between">
-                        <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                        <h3 className="font-display font-medium text-foreground text-sm sm:text-base">
                           Vagas Visualizadas
                         </h3>
-                        <span className="text-xs text-muted-foreground bg-secondary rounded-full px-2.5 py-0.5">
+                        <span className="text-xs font-mono text-muted-foreground bg-secondary rounded-full px-2.5 py-0.5">
                           {relatorio.candidaturas.length} registro{relatorio.candidaturas.length !== 1 ? "s" : ""}
                         </span>
                       </div>
@@ -721,7 +721,7 @@ export function RelatoriosPage() {
                                 key={`${c.vagaId}-${i}`}
                                 className="hover:bg-secondary/30 transition-colors"
                               >
-                                <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
+                                <td className="px-4 py-3 text-xs font-mono text-muted-foreground whitespace-nowrap">
                                   {formatDateTime(c.dataInteracao)}
                                 </td>
                                 <td className="px-4 py-3 font-medium text-foreground max-w-[220px] truncate">
@@ -729,11 +729,11 @@ export function RelatoriosPage() {
                                 </td>
                                 <td className="px-4 py-3 hidden md:table-cell">
                                   {c.senioridade ? (
-                                    <span className="text-xs bg-secondary text-secondary-foreground rounded-full px-2.5 py-0.5 whitespace-nowrap">
+                                    <span className="text-xs font-mono bg-secondary text-secondary-foreground rounded-full px-2.5 py-0.5 whitespace-nowrap">
                                       {SENIORIDADE_DISPLAY[c.senioridade]}
                                     </span>
                                   ) : (
-                                    <span className="text-xs text-muted-foreground">—</span>
+                                    <span className="text-xs font-mono text-muted-foreground">—</span>
                                   )}
                                 </td>
                                 <td className="px-4 py-3 hidden lg:table-cell">
@@ -741,19 +741,19 @@ export function RelatoriosPage() {
                                     {c.stacks.slice(0, 3).map((s) => (
                                       <span
                                         key={s}
-                                        className="text-xs bg-transparent border border-border text-muted-foreground rounded-full px-2 py-0.5"
+                                        className="text-xs font-mono bg-transparent border border-border text-muted-foreground rounded-full px-2 py-0.5"
                                       >
                                         {s}
                                       </span>
                                     ))}
                                     {c.stacks.length > 3 && (
-                                      <span className="text-xs text-muted-foreground/70 self-center">
+                                      <span className="text-xs font-mono text-muted-foreground/70 self-center">
                                         +{c.stacks.length - 3}
                                       </span>
                                     )}
                                   </div>
                                 </td>
-                                <td className="px-4 py-3 hidden md:table-cell text-xs text-muted-foreground whitespace-nowrap">
+                                <td className="px-4 py-3 hidden md:table-cell text-xs font-mono text-muted-foreground whitespace-nowrap">
                                   {c.fonte}
                                 </td>
                                 <td className="px-4 py-3 text-center">

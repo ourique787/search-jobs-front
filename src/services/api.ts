@@ -12,7 +12,7 @@ export function resolveMediaUrl(url: string | null | undefined): string | null {
 
 function redirectToLogin(): void {
   removeToken();
-  window.location.href = "/login";
+  window.location.href = "/";
 }
 
 export function saveToken(token: string): void {

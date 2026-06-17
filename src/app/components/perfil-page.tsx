@@ -361,7 +361,7 @@ export function PerfilPage() {
                   </div>
 
                   <div className="mb-8">
-                    <h1 className="text-xl font-semibold text-foreground">{user?.nome}</h1>
+                    <h1 className="text-xl font-display font-bold text-foreground">{user?.nome}</h1>
                     <p className="text-sm text-muted-foreground mt-0.5">{user?.email}</p>
                   </div>
 
@@ -487,7 +487,7 @@ export function PerfilPage() {
 
                   <div className="space-y-8">
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground mb-4">
+                      <h2 className="text-sm font-display font-medium text-foreground mb-4">
                         Senioridade alvo
                       </h2>
                       <div className="grid grid-cols-2 gap-3">
@@ -496,13 +496,13 @@ export function PerfilPage() {
                             key={s}
                             type="button"
                             onClick={() => setSenioridadeAlvo((prev) => (prev === s ? "" : s))}
-                            className={`px-4 py-4 rounded-xl border text-sm font-medium transition-all text-left ${
+                            className={`px-4 py-4 rounded-xl border text-sm font-medium normal-case transition-all text-left ${
                               senioridadeAlvo === s
                                 ? "border-primary bg-primary/8 text-primary ring-1 ring-primary/30"
                                 : "border-border bg-secondary text-muted-foreground hover:border-accent/50 hover:text-foreground"
                             }`}
                           >
-                            <span className="block font-semibold text-base">
+                            <span className="block font-mono font-medium text-base">
                               {SENIORIDADE_DISPLAY[s]}
                             </span>
                             <span className="text-xs font-normal mt-0.5 opacity-70">
@@ -518,10 +518,10 @@ export function PerfilPage() {
 
                     {/* Stacks de interesse */}
                     <div>
-                      <h2 className="text-sm font-semibold text-foreground mb-1">
+                      <h2 className="text-sm font-display font-medium text-foreground mb-1">
                         Tecnologias de interesse
                       </h2>
-                      <p className="text-xs text-muted-foreground mb-4">
+                      <p className="text-xs font-mono text-muted-foreground mb-4">
                         {preferredStacks.length > 0
                           ? `${preferredStacks.length} selecionada${preferredStacks.length > 1 ? "s" : ""}`
                           : "Nenhuma selecionada"}
@@ -550,7 +550,7 @@ export function PerfilPage() {
                               onChange={() => togglePreferredStack(stack.nome)}
                               className="w-4 h-4 rounded border-border accent-[#6366F1]"
                             />
-                            <span className="text-sm text-foreground group-hover:text-primary transition-colors">
+                            <span className="text-sm font-mono text-foreground group-hover:text-primary transition-colors">
                               {stack.nome}
                             </span>
                           </label>

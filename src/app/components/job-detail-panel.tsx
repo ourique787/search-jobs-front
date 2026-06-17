@@ -174,7 +174,7 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
             <div className="w-16 h-16 bg-accent/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <Code2 className="w-8 h-8 text-primary" />
             </div>
-            <h3 className="font-semibold text-foreground mb-1">Selecione uma vaga</h3>
+            <h3 className="font-display font-medium text-foreground mb-1">Selecione uma vaga</h3>
             <p className="text-sm text-muted-foreground">
               Clique em uma vaga à esquerda para ver os detalhes aqui.
             </p>
@@ -231,7 +231,7 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
               : job.empresa[0]?.toUpperCase() ?? "?"}
           </div>
           <div className="flex-1 min-w-0 pr-8">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground leading-tight">
+            <h2 className="text-lg sm:text-xl font-display font-bold text-foreground leading-tight">
               {job.titulo}
             </h2>
             <p className="text-sm text-muted-foreground mt-0.5 flex items-center gap-1.5">
@@ -242,19 +242,19 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
                   <span className="text-border">·</span>
                 </>
               )}
-              <span>{job.fonte}</span>
+              <span className="font-mono">{job.fonte}</span>
             </p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <span className="text-xs bg-secondary text-secondary-foreground px-2.5 py-1 rounded-full font-medium">
+              <span className="text-xs font-mono bg-secondary text-secondary-foreground px-2.5 py-1 rounded-full">
                 {SENIORIDADE_DISPLAY[job.senioridade]}
               </span>
               {hasQualifications && (
-                <span className="flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full font-normal">
+                <span className="flex items-center gap-1 text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                   <Sparkles className="w-3 h-3" />
                   Recomendada para você
                 </span>
               )}
-              <span className="text-xs text-muted-foreground flex items-center gap-1">
+              <span className="text-xs font-mono text-muted-foreground flex items-center gap-1">
                 <Calendar className="w-3 h-3" />
                 {formatDate(job.dataColeta)}
               </span>
@@ -277,14 +277,14 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
         {/* Suas qualificações */}
         {hasQualifications && (
           <section className="bg-success-soft border border-success/20 rounded-xl p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">
+            <h3 className="text-sm font-display font-medium text-foreground mb-3">
               Suas qualificações para esta vaga
             </h3>
             <div className="space-y-2">
               {senioridadeMatch && (
                 <div className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
-                  <span className="text-sm text-foreground">
+                  <span className="text-sm font-mono text-foreground">
                     {SENIORIDADE_DISPLAY[job.senioridade]}
                   </span>
                 </div>
@@ -292,7 +292,7 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
               {matchingStacks.map((s) => (
                 <div key={s.id} className="flex items-center gap-2.5">
                   <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
-                  <span className="text-sm text-foreground">{s.nome}</span>
+                  <span className="text-sm font-mono text-foreground">{s.nome}</span>
                 </div>
               ))}
             </div>
@@ -302,7 +302,7 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
         {/* Tecnologias requisitadas */}
         {job.stacksRequisitadas.length > 0 && (
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-display font-medium text-foreground mb-3 flex items-center gap-2">
               <Layers className="w-4 h-4 text-muted-foreground" />
               Tecnologias Requisitadas
             </h3>
@@ -310,7 +310,7 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
               {job.stacksRequisitadas.map((s) => (
                 <span
                   key={s.id}
-                  className="px-2.5 py-1 rounded-full text-xs border border-border text-muted-foreground bg-transparent cursor-default"
+                  className="px-2.5 py-1 rounded-full text-xs font-mono border border-border text-muted-foreground bg-transparent cursor-default"
                 >
                   {s.nome}
                 </span>
@@ -322,7 +322,7 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
         {/* Descrição */}
         {job.descricao?.trim() && (
           <section>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Descrição</h3>
+            <h3 className="text-sm font-display font-medium text-foreground mb-3">Descrição</h3>
             <div className="bg-card border border-border rounded-xl p-4">
               <DescriptionRenderer text={job.descricao!} />
             </div>
@@ -333,11 +333,11 @@ export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-card border border-border rounded-xl p-4">
             <p className="text-xs text-muted-foreground mb-1">Fonte</p>
-            <p className="text-sm font-semibold text-foreground">{job.fonte}</p>
+            <p className="text-sm font-mono text-foreground">{job.fonte}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-4">
             <p className="text-xs text-muted-foreground mb-1">Coletado em</p>
-            <p className="text-sm font-semibold text-foreground">{formatDate(job.dataColeta)}</p>
+            <p className="text-sm font-mono text-foreground">{formatDate(job.dataColeta)}</p>
           </div>
         </div>
 

@@ -1,5 +1,2 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
+/* Fontes carregadas via <link> no index.html (mais confiável que @import em CSS processado pelo Vite).
+   Space Grotesk 400/500/700 · Inter 400/500/600 · JetBrains Mono 400/500              */
