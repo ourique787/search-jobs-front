@@ -369,7 +369,7 @@ export function PerfilPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
                         <label className={labelClass}>
-                          Nome completo <span className="text-destructive">*</span>
+                          nome completo <span className="text-destructive">*</span>
                         </label>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -383,7 +383,7 @@ export function PerfilPage() {
                         </div>
                       </div>
                       <div>
-                        <label className={labelClass}>Email</label>
+                        <label className={labelClass}>email</label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           <input
@@ -400,7 +400,7 @@ export function PerfilPage() {
                       <label className={labelClass}>
                         <span className="flex items-center gap-1.5">
                           <Linkedin className="w-4 h-4 text-[#0077b5]" />
-                          LinkedIn
+                          linkedin
                         </span>
                       </label>
                       <input
@@ -419,7 +419,7 @@ export function PerfilPage() {
                       <label className={labelClass}>
                         <span className="flex items-center gap-1.5">
                           <Github className="w-4 h-4" />
-                          GitHub
+                          github
                         </span>
                       </label>
                       <input
@@ -606,7 +606,7 @@ export function PerfilPage() {
 
                   <form onSubmit={handleSavePassword} className="space-y-5 max-w-md">
                     <div>
-                      <label className={labelClass}>Senha atual</label>
+                      <label className={labelClass}>senha atual</label>
                       <div className="relative">
                         <input
                           type={showSenhaAtual ? "text" : "password"}
@@ -627,7 +627,7 @@ export function PerfilPage() {
                     </div>
 
                     <div>
-                      <label className={labelClass}>Nova senha</label>
+                      <label className={labelClass}>nova senha</label>
                       <div className="relative">
                         <input
                           type={showNovaSenha ? "text" : "password"}
@@ -653,7 +653,7 @@ export function PerfilPage() {
                     </div>
 
                     <div>
-                      <label className={labelClass}>Confirmar nova senha</label>
+                      <label className={labelClass}>confirmar nova senha</label>
                       <div className="relative">
                         <input
                           type={showConfirmar ? "text" : "password"}

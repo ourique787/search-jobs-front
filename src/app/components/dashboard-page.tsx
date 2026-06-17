@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Search, SlidersHorizontal, ChevronLeft } from "lucide-react";
 import { Header } from "./header";
 import { JobCard } from "./job-card";
@@ -32,6 +32,7 @@ export function DashboardPage() {
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [showMobileDetail, setShowMobileDetail] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const autoSelectedRef = useRef(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSeniorities, setSelectedSeniorities] = useState<string[]>([]);
@@ -86,6 +87,14 @@ export function DashboardPage() {
     };
   }, [filteredJobs, prefs]);
 
+  // Auto-seleciona a primeira vaga no carregamento inicial (uma única vez)
+  useEffect(() => {
+    if (!isLoading && !autoSelectedRef.current && filteredJobs.length > 0) {
+      setSelectedJob(matchJobs.length > 0 ? matchJobs[0] : filteredJobs[0]);
+      autoSelectedRef.current = true;
+    }
+  }, [isLoading, filteredJobs, matchJobs]);
+
   function handleJobClick(job: Job) {
     setSelectedJob(job);
     setShowMobileDetail(true);
@@ -110,7 +119,7 @@ export function DashboardPage() {
         <div className="flex flex-1 overflow-hidden max-w-[1600px] mx-auto w-full pl-4 sm:pl-6 pr-4 sm:pr-6">
 
           {/* ── Painel da lista de vagas ── */}
-          <div className={`flex flex-col w-full lg:w-[400px] xl:w-[440px] flex-shrink-0 border-r border-border ${
+          <div className={`flex flex-col w-full lg:w-[45%] flex-shrink-0 border-r border-border ${
             showMobileDetail ? "hidden lg:flex" : "flex"
           }`}>
             {/* Header: busca + filtros */}
@@ -277,6 +286,7 @@ export function DashboardPage() {
                       key={job.id}
                       job={job}
                       isSelected={selectedJob?.id === job.id}
+                      isMatch
                       onClick={() => handleJobClick(job)}
                     />
                   ))}
@@ -315,7 +325,6 @@ export function DashboardPage() {
             )}
             <JobDetailPanel
               job={selectedJob}
-              allJobs={jobs}
               onClose={() => { setSelectedJob(null); setShowMobileDetail(false); }}
             />
           </div>

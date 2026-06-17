@@ -1,9 +1,131 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
-import { Code2, Check } from "lucide-react";
+import { Code2, Check, Eye, EyeOff, X, ChevronDown } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
-import type { Senioridade } from "@/types";
+import { api } from "@/services/api";
+import type { Senioridade, Stack } from "@/types";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/app/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/app/components/ui/command";
+import { cn } from "@/app/components/ui/utils";
+
+// ── StacksMultiSelect ────────────────────────────────────────────────────────
+
+interface StacksMultiSelectProps {
+  stacks: Stack[];
+  selectedIds: number[];
+  onChange: (ids: number[]) => void;
+}
+
+function StacksMultiSelect({ stacks, selectedIds, onChange }: StacksMultiSelectProps) {
+  const [open, setOpen] = useState(false);
+
+  const selectedStacks = stacks.filter((s) => selectedIds.includes(s.id));
+
+  const toggle = (id: number) =>
+    onChange(
+      selectedIds.includes(id)
+        ? selectedIds.filter((x) => x !== id)
+        : [...selectedIds, id]
+    );
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <div
+          role="combobox"
+          tabIndex={0}
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          className={cn(
+            "w-full min-h-[48px] px-3 py-2 bg-input-background border border-input rounded-xl text-sm cursor-pointer",
+            "flex flex-wrap items-center gap-1.5",
+            open ? "ring-2 ring-ring" : "focus-visible:ring-2 focus-visible:ring-ring"
+          )}
+        >
+          {selectedStacks.length === 0 ? (
+            <span className="text-muted-foreground px-1 flex-1">selecione...</span>
+          ) : (
+            selectedStacks.map((stack) => (
+              <span
+                key={stack.id}
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-mono normal-case bg-primary/10 text-primary border border-primary/30"
+              >
+                {stack.nome}
+                <span
+                  role="button"
+                  tabIndex={-1}
+                  aria-label={`Remover ${stack.nome}`}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => { e.stopPropagation(); toggle(stack.id); }}
+                  className="hover:text-primary/60 transition-colors cursor-pointer"
+                >
+                  <X className="w-3 h-3" />
+                </span>
+              </span>
+            ))
+          )}
+          <ChevronDown
+            className={cn(
+              "w-4 h-4 text-muted-foreground ml-auto flex-shrink-0 transition-transform",
+              open && "rotate-180"
+            )}
+          />
+        </div>
+      </PopoverTrigger>
+
+      <PopoverContent
+        align="start"
+        sideOffset={4}
+        className="p-0"
+        style={{ width: "var(--radix-popover-trigger-width)" }}
+      >
+        <Command>
+          <CommandInput placeholder="buscar tecnologia..." />
+          <CommandList className="max-h-48">
+            <CommandEmpty className="text-xs py-4 text-center">
+              nenhuma encontrada.
+            </CommandEmpty>
+            <CommandGroup>
+              {stacks.map((stack) => {
+                const selected = selectedIds.includes(stack.id);
+                return (
+                  <CommandItem
+                    key={stack.id}
+                    value={stack.nome}
+                    onSelect={() => toggle(stack.id)}
+                    className="cursor-pointer gap-2"
+                  >
+                    <Check
+                      className={cn(
+                        "w-3.5 h-3.5 flex-shrink-0 text-primary",
+                        selected ? "opacity-100" : "opacity-0"
+                      )}
+                    />
+                    <span className="font-mono text-xs normal-case">{stack.nome}</span>
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+// ── Constantes ───────────────────────────────────────────────────────────────
 
 const SENIORIDADE_OPTIONS: { value: Senioridade; label: string }[] = [
   { value: "ESTAGIARIO", label: "Estágio" },
@@ -18,11 +140,26 @@ const VALUE_POINTS = [
   "Mostra de onde veio cada vaga e o quanto ela combina com você.",
 ];
 
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="w-4 h-4 flex-shrink-0">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+    </svg>
+  );
+}
+
+// ── LoginPage ────────────────────────────────────────────────────────────────
+
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, register, isAuthenticated, isLoading } = useAuth();
+  const { login, register, updateUser, isAuthenticated, isLoading } = useAuth();
 
   const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+  const [googlePending, setGooglePending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -32,6 +169,13 @@ export function LoginPage() {
     name: "",
     senioridadeAlvo: "" as Senioridade | "",
   });
+
+  const [stacks, setStacks] = useState<Stack[]>([]);
+  const [selectedStackIds, setSelectedStackIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    api.stacks.list().then(setStacks).catch(() => {});
+  }, []);
 
   if (isLoading) {
     return (
@@ -60,7 +204,6 @@ export function LoginPage() {
       setError("Preencha todos os campos obrigatórios.");
       return;
     }
-
     if (formData.password.length < 6) {
       setError("A senha deve ter ao menos 6 caracteres.");
       return;
@@ -82,6 +225,15 @@ export function LoginPage() {
           senha: formData.password,
           senioridadeAlvo: formData.senioridadeAlvo || undefined,
         });
+        // Usuário autenticado — persiste stacks e sincroniza o contexto
+        if (selectedStackIds.length > 0) {
+          try {
+            const updated = await api.users.updateProfile({ stackIds: selectedStackIds });
+            updateUser({ stacksPreferidas: updated.stacksPreferidas ?? [] });
+          } catch {
+            // Não-crítico: stacks podem ser configuradas no perfil depois
+          }
+        }
       }
       navigate("/dashboard");
     } catch (err) {
@@ -98,16 +250,25 @@ export function LoginPage() {
     }
   };
 
+  const handleGoogleClick = () => {
+    if (googlePending) return;
+    setGooglePending(true);
+    setTimeout(() => setGooglePending(false), 2500);
+  };
+
   const switchMode = () => {
     setIsLogin((prev) => !prev);
     setError(null);
+    setShowPassword(false);
+    setGooglePending(false);
+    setSelectedStackIds([]);
     setFormData({ email: "", password: "", name: "", senioridadeAlvo: "" });
   };
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
 
-      {/* ── Coluna esquerda — marca e valor ─────────────────────────────── */}
+      {/* ── Coluna esquerda ──────────────────────────────────────────────── */}
       <div className="bg-primary flex flex-col px-8 py-10 lg:flex-1 lg:px-14 lg:justify-center">
         <div className="flex items-center gap-2.5 mb-8">
           <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
@@ -135,7 +296,7 @@ export function LoginPage() {
         </ul>
       </div>
 
-      {/* ── Coluna direita — formulário ──────────────────────────────────── */}
+      {/* ── Coluna direita ───────────────────────────────────────────────── */}
       <div className="flex-1 flex items-center justify-center bg-background px-6 py-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -144,12 +305,12 @@ export function LoginPage() {
           className="w-full max-w-[400px]"
         >
           <h2 className="text-2xl font-display font-bold text-foreground mb-1">
-            {isLogin ? "Bem-vindo de volta" : "Crie sua conta"}
+            {isLogin ? "entrar na conta" : "criar conta"}
           </h2>
           <p className="text-sm text-muted-foreground mb-6">
             {isLogin
-              ? "Entre para continuar sua busca"
-              : "Comece a encontrar vagas incríveis"}
+              ? "acesse seu feed personalizado de vagas"
+              : "comece a encontrar as melhores vagas para o seu perfil"}
           </p>
 
           {error && (
@@ -158,11 +319,32 @@ export function LoginPage() {
             </div>
           )}
 
+          {/* Google */}
+          <button
+            type="button"
+            onClick={handleGoogleClick}
+            className={`w-full flex items-center justify-center gap-2.5 px-4 py-3 border rounded-xl text-sm transition-all ${
+              googlePending
+                ? "border-primary/30 bg-primary/5 text-primary cursor-default"
+                : "border-border bg-card hover:bg-secondary/50 text-foreground"
+            }`}
+          >
+            <GoogleIcon />
+            {googlePending ? "disponível em breve..." : "continuar com google"}
+          </button>
+
+          <div className="flex items-center gap-3 my-4">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-xs text-muted-foreground">ou</span>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+            {/* Nome — só no cadastro */}
             {!isLogin && (
               <div>
                 <label htmlFor="name" className="block mb-1.5 text-sm font-medium text-foreground">
-                  Nome completo
+                  nome completo
                 </label>
                 <input
                   id="name"
@@ -172,14 +354,15 @@ export function LoginPage() {
                   value={formData.name}
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-input-background border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
-                  placeholder="Seu nome"
+                  placeholder="seu nome"
                 />
               </div>
             )}
 
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block mb-1.5 text-sm font-medium text-foreground">
-                Email
+                email
               </label>
               <input
                 id="email"
@@ -193,26 +376,49 @@ export function LoginPage() {
               />
             </div>
 
+            {/* Senha */}
             <div>
               <label htmlFor="password" className="block mb-1.5 text-sm font-medium text-foreground">
-                Senha
+                senha
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete={isLogin ? "current-password" : "new-password"}
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-input-background border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
-                placeholder="••••••••"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete={isLogin ? "current-password" : "new-password"}
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 pr-11 bg-input-background border border-input rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
+                  placeholder="••••••••"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((p) => !p)}
+                  tabIndex={-1}
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {isLogin && (
+                <div className="flex justify-end mt-1.5">
+                  <button
+                    type="button"
+                    className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    esqueci a senha
+                  </button>
+                </div>
+              )}
             </div>
 
+            {/* Senioridade alvo — só no cadastro */}
             {!isLogin && (
               <div>
                 <label htmlFor="senioridadeAlvo" className="block mb-1.5 text-sm font-medium text-foreground">
-                  Senioridade alvo{" "}
+                  senioridade alvo{" "}
                   <span className="text-muted-foreground font-normal">(opcional)</span>
                 </label>
                 <select
@@ -222,13 +428,35 @@ export function LoginPage() {
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-input-background border border-input rounded-xl focus:outline-none focus:ring-2 focus:ring-ring transition-shadow text-sm"
                 >
-                  <option value="">Selecione...</option>
+                  <option value="">selecione...</option>
                   {SENIORIDADE_OPTIONS.map((o) => (
                     <option key={o.value} value={o.value}>
                       {o.label}
                     </option>
                   ))}
                 </select>
+              </div>
+            )}
+
+            {/* Stacks — só no cadastro, só se a API retornou a lista */}
+            {!isLogin && stacks.length > 0 && (
+              <div>
+                <div className="flex items-baseline justify-between mb-1.5">
+                  <label className="text-sm font-medium text-foreground">
+                    stacks{" "}
+                    <span className="text-muted-foreground font-normal">(opcional)</span>
+                  </label>
+                  {selectedStackIds.length > 0 && (
+                    <span className="text-xs font-mono text-primary">
+                      {selectedStackIds.length} selecionada{selectedStackIds.length !== 1 ? "s" : ""}
+                    </span>
+                  )}
+                </div>
+                <StacksMultiSelect
+                  stacks={stacks}
+                  selectedIds={selectedStackIds}
+                  onChange={setSelectedStackIds}
+                />
               </div>
             )}
 
@@ -241,7 +469,6 @@ export function LoginPage() {
             </button>
           </form>
 
-          {/* Link de alternância */}
           <p className="text-sm text-muted-foreground text-center mt-5">
             {isLogin ? "não tem conta? " : "já tem conta? "}
             <button

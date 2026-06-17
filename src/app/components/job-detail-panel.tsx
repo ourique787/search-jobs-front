@@ -3,13 +3,10 @@ import { api } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job } from "@/types";
-import { TrendingWidget } from "./trending-widget";
-
 const EMPRESA_DESCONHECIDA = "Não informada";
 
 interface JobDetailPanelProps {
   job: Job | null;
-  allJobs: Job[];
   onClose?: () => void;
 }
 
@@ -163,23 +160,20 @@ function DescriptionRenderer({ text }: { text: string }) {
   );
 }
 
-export function JobDetailPanel({ job, allJobs, onClose }: JobDetailPanelProps) {
+export function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
   const { user } = useAuth();
 
   if (!job) {
     return (
-      <div className="flex-1 overflow-y-auto p-6 bg-secondary/20">
-        <div className="max-w-md mx-auto py-4">
-          <div className="text-center py-10 mb-8">
-            <div className="w-16 h-16 bg-accent/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Code2 className="w-8 h-8 text-primary" />
-            </div>
-            <h3 className="font-display font-medium text-foreground mb-1">Selecione uma vaga</h3>
-            <p className="text-sm text-muted-foreground">
-              Clique em uma vaga à esquerda para ver os detalhes aqui.
-            </p>
+      <div className="flex-1 flex items-center justify-center bg-secondary/20">
+        <div className="text-center px-6">
+          <div className="w-12 h-12 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <Code2 className="w-6 h-6 text-primary/60" />
           </div>
-          <TrendingWidget jobs={allJobs} />
+          <p className="text-sm font-medium text-muted-foreground">Nenhuma vaga selecionada</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">
+            Clique em uma vaga para ver os detalhes.
+          </p>
         </div>
       </div>
     );

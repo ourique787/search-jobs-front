@@ -9,6 +9,7 @@ const EMPRESA_DESCONHECIDA = "Não informada";
 interface JobCardProps {
   job: Job;
   isSelected: boolean;
+  isMatch?: boolean;
   onClick: () => void;
 }
 
@@ -30,7 +31,7 @@ function timeAgo(iso: string): string {
   return `${days} dias atrás`;
 }
 
-export function JobCard({ job, isSelected, onClick }: JobCardProps) {
+export function JobCard({ job, isSelected, isMatch = false, onClick }: JobCardProps) {
   const isUnknown = job.empresa === EMPRESA_DESCONHECIDA;
   const { user } = useAuth();
   const preferredStacks = user?.stacksPreferidas?.map((s) => s.nome) ?? [];
@@ -40,7 +41,7 @@ export function JobCard({ job, isSelected, onClick }: JobCardProps) {
       (preferredStacks.includes(a.nome) ? 0 : 1) -
       (preferredStacks.includes(b.nome) ? 0 : 1)
   );
-  const visible = sortedStacks.slice(0, 2);
+  const visible = sortedStacks.slice(0, 3);
   const hidden = sortedStacks.length - visible.length;
 
   return (
@@ -49,7 +50,9 @@ export function JobCard({ job, isSelected, onClick }: JobCardProps) {
       className={`px-4 py-4 cursor-pointer border-b border-border transition-colors relative select-none border-l-2 ${
         isSelected
           ? "bg-accent/5 border-l-accent"
-          : "border-l-transparent hover:bg-secondary/40"
+          : isMatch
+            ? "border-l-primary/30 hover:bg-secondary/40"
+            : "border-l-transparent hover:bg-secondary/40"
       }`}
     >
       <div className="flex items-start gap-3">
@@ -76,9 +79,15 @@ export function JobCard({ job, isSelected, onClick }: JobCardProps) {
                 {job.fonte}
               </p>
             </div>
-            <div className="flex items-center gap-1 text-muted-foreground flex-shrink-0">
-              <Clock className="w-3 h-3" />
-              <span className="text-[12px] font-mono">{timeAgo(job.dataColeta)}</span>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              {isMatch && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-mono bg-success-soft text-success border border-success/30 px-1.5 py-0.5 rounded-full leading-none">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success flex-shrink-0" />
+                  match
+                </span>
+              )}
+              <Clock className="w-3 h-3 text-muted-foreground" />
+              <span className="text-[12px] font-mono text-muted-foreground">{timeAgo(job.dataColeta)}</span>
             </div>
           </div>
 
