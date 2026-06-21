@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
+import { useGoogleLogin } from "@react-oauth/google";
 import { Code2, Check, Eye, EyeOff, X, ChevronDown } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -155,7 +156,7 @@ function GoogleIcon() {
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const { login, register, updateUser, isAuthenticated, isLoading } = useAuth();
+  const { login, register, googleLogin, updateUser, isAuthenticated, isLoading } = useAuth();
 
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -176,6 +177,23 @@ export function LoginPage() {
   useEffect(() => {
     api.stacks.list().then(setStacks).catch(() => {});
   }, []);
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setGooglePending(true);
+      setError(null);
+      try {
+        await googleLogin(tokenResponse.access_token);
+        navigate("/dashboard");
+      } catch {
+        setError("Falha ao entrar com Google. Tente novamente.");
+        setGooglePending(false);
+      }
+    },
+    onError: () => {
+      setError("Falha ao entrar com Google. Tente novamente.");
+    },
+  });
 
   if (isLoading) {
     return (
@@ -250,12 +268,6 @@ export function LoginPage() {
     }
   };
 
-  const handleGoogleClick = () => {
-    if (googlePending) return;
-    setGooglePending(true);
-    setTimeout(() => setGooglePending(false), 2500);
-  };
-
   const switchMode = () => {
     setIsLogin((prev) => !prev);
     setError(null);
@@ -322,15 +334,16 @@ export function LoginPage() {
           {/* Google */}
           <button
             type="button"
-            onClick={handleGoogleClick}
+            onClick={() => { setError(null); handleGoogleLogin(); }}
+            disabled={googlePending}
             className={`w-full flex items-center justify-center gap-2.5 px-4 py-3 border rounded-xl text-sm transition-all ${
               googlePending
-                ? "border-primary/30 bg-primary/5 text-primary cursor-default"
+                ? "border-primary/30 bg-primary/5 text-primary cursor-default opacity-70"
                 : "border-border bg-card hover:bg-secondary/50 text-foreground"
             }`}
           >
             <GoogleIcon />
-            {googlePending ? "disponível em breve..." : "continuar com google"}
+            {googlePending ? "aguarde..." : "continuar com google"}
           </button>
 
           <div className="flex items-center gap-3 my-4">
@@ -406,6 +419,7 @@ export function LoginPage() {
                 <div className="flex justify-end mt-1.5">
                   <button
                     type="button"
+                    onClick={() => navigate("/forgot-password")}
                     className="text-xs text-muted-foreground hover:text-primary transition-colors"
                   >
                     esqueci a senha

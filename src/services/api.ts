@@ -76,6 +76,24 @@ export const api = {
         method: "POST",
         body: JSON.stringify(data),
       }),
+
+    forgotPassword: (email: string): Promise<{ message: string }> =>
+      request<{ message: string }>("/api/auth/forgot-password", {
+        method: "POST",
+        body: JSON.stringify({ email }),
+      }),
+
+    resetPassword: (token: string, novaSenha: string): Promise<{ message: string }> =>
+      request<{ message: string }>("/api/auth/reset-password", {
+        method: "POST",
+        body: JSON.stringify({ token, novaSenha }),
+      }),
+
+    googleLogin: (accessToken: string): Promise<AuthResponse> =>
+      request<AuthResponse>("/api/auth/google", {
+        method: "POST",
+        body: JSON.stringify({ accessToken }),
+      }),
   },
 
   jobs: {
