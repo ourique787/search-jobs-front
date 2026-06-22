@@ -9,7 +9,8 @@
       "Bash(./node_modules/.bin/tsc --noEmit -p tsconfig.json)",
       "Bash(./node_modules/.bin/tsc --noEmit)",
       "Bash(find /home/usuario/Downloads -name \"*.java\" -o -name \"*.yml\" -o -name \"*.yaml\" -o -name \"*.properties\" -o -name \"*.json\" 2>/dev/null | grep -v node_modules | grep -v \".git\" | head -40)",
-      "Read(//home/usuario/Downloads/**)"
+      "Read(//home/usuario/Downloads/**)",
+      "Bash(git -C /home/usuario/Downloads/frontsearchjobs status --short)"
     ]
   }
 }
