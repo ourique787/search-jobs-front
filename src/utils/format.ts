@@ -1,3 +1,6 @@
+export const SENHA_REGEX = /^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{8,}$/;
+export const SENHA_ERRO = "Senha deve ter no mínimo 8 caracteres, uma letra maiúscula e um símbolo";
+
 /**
  * Normalizes a job title for display only — never mutates the stored value.
  * - Strips leading numeric ID prefixes like "00074/2026 - "

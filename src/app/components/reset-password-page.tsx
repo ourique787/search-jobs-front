@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import { Code2, Eye, EyeOff } from "lucide-react";
 import { motion } from "motion/react";
 import { api } from "@/services/api";
+import { SENHA_REGEX, SENHA_ERRO } from "@/utils/format";
 
 export function ResetPasswordPage() {
   const navigate = useNavigate();
@@ -35,8 +36,8 @@ export function ResetPasswordPage() {
     e.preventDefault();
     setError(null);
 
-    if (novaSenha.length < 6) {
-      setError("A senha deve ter ao menos 6 caracteres.");
+    if (!SENHA_REGEX.test(novaSenha)) {
+      setError(SENHA_ERRO);
       return;
     }
     if (novaSenha !== confirmar) {
@@ -89,7 +90,7 @@ export function ResetPasswordPage() {
           <>
             <h2 className="text-2xl font-display font-bold text-foreground mb-1">nova senha</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Escolha uma senha com ao menos 6 caracteres.
+              Mínimo 8 caracteres, uma letra maiúscula e um símbolo.
             </p>
 
             {error && (

@@ -5,6 +5,7 @@ import { Code2, Check, Eye, EyeOff, X, ChevronDown } from "lucide-react";
 import { motion } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/services/api";
+import { SENHA_REGEX, SENHA_ERRO } from "@/utils/format";
 import type { Senioridade, Stack } from "@/types";
 import {
   Popover,
@@ -222,8 +223,8 @@ export function LoginPage() {
       setError("Preencha todos os campos obrigatórios.");
       return;
     }
-    if (formData.password.length < 6) {
-      setError("A senha deve ter ao menos 6 caracteres.");
+    if (!isLogin && !SENHA_REGEX.test(formData.password)) {
+      setError(SENHA_ERRO);
       return;
     }
 

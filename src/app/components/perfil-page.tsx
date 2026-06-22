@@ -23,6 +23,7 @@ import { Header } from "./header";
 import { api, resolveMediaUrl } from "@/services/api";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Senioridade, Stack } from "@/types";
+import { SENHA_REGEX, SENHA_ERRO } from "@/utils/format";
 
 type Section = "informacoes" | "preferencias" | "seguranca";
 
@@ -175,12 +176,12 @@ export function PerfilPage() {
   const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwError("");
-    if (novaSenha !== confirmarSenha) {
-      setPwError("As senhas não coincidem.");
+    if (!SENHA_REGEX.test(novaSenha)) {
+      setPwError(SENHA_ERRO);
       return;
     }
-    if (novaSenha.length < 6) {
-      setPwError("A nova senha deve ter pelo menos 6 caracteres.");
+    if (novaSenha !== confirmarSenha) {
+      setPwError("As senhas não coincidem.");
       return;
     }
     setPwStatus("loading");
@@ -645,9 +646,9 @@ export function PerfilPage() {
                           {showNovaSenha ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
-                      {novaSenha.length > 0 && novaSenha.length < 6 && (
+                      {novaSenha.length > 0 && !SENHA_REGEX.test(novaSenha) && (
                         <p className="text-xs text-destructive mt-1.5">
-                          Mínimo de 6 caracteres.
+                          {SENHA_ERRO}
                         </p>
                       )}
                     </div>
