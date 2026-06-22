@@ -136,7 +136,7 @@ const SENIORIDADE_OPTIONS: { value: Senioridade; label: string }[] = [
 ];
 
 const VALUE_POINTS = [
-  "Junta as vagas de InfoJobs e Empregos.com.br num feed só.",
+  "Junta as vagas de diversos portais em um único feed.",
   "Remove duplicatas e filtra pelo seu perfil — stack e senioridade.",
   "Mostra de onde veio cada vaga e o quanto ela combina com você.",
 ];
@@ -290,7 +290,7 @@ export function LoginPage() {
         </div>
 
         <h1 className="text-3xl lg:text-[2.6rem] font-display font-bold text-white leading-[1.1] mb-3">
-          vagas de tech,<br />sem ruído.
+          vagas de tech,<br />sem perda de tempo.
         </h1>
         <p className="text-white/55 text-sm mb-8 leading-relaxed max-w-[22rem]">
           Tudo que você precisa para encontrar a próxima oportunidade — num lugar só.
