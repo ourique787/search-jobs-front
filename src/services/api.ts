@@ -98,8 +98,13 @@ export const api = {
 
   jobs: {
     list: (): Promise<Job[]> => request<Job[]>("/api/jobs"),
-    click: (id: number): Promise<void> =>
-      request<void>(`/api/jobs/${id}/click`, { method: "POST" }),
+    click: (id: number): Promise<void> => {
+      const token = getToken();
+      return fetch(`${API_URL}/api/jobs/${id}/click`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }).then(() => undefined).catch(() => undefined);
+    },
   },
 
   stacks: {
