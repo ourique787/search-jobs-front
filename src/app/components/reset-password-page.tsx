@@ -67,7 +67,7 @@ export function ResetPasswordPage() {
           <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
             <Code2 className="w-5 h-5 text-primary" />
           </div>
-          <span className="text-xl font-display font-bold text-foreground">SearchJobs</span>
+          <span className="text-xl font-display font-bold text-foreground">searchjobs</span>
         </div>
 
         {status === "success" ? (

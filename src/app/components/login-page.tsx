@@ -181,6 +181,14 @@ export function LoginPage() {
     api.stacks.list().then(setStacks).catch(() => {});
   }, []);
 
+  // Roda após o render — ref já está atualizado neste ponto
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const dest = pendingOnboarding.current ? "/onboarding" : "/dashboard";
+    pendingOnboarding.current = false;
+    navigate(dest, { replace: true });
+  }, [isAuthenticated, navigate]);
+
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setGooglePending(true);
@@ -206,13 +214,7 @@ export function LoginPage() {
     );
   }
 
-  if (isAuthenticated) {
-    if (pendingOnboarding.current) {
-      pendingOnboarding.current = false;
-      return <Navigate to="/onboarding" replace />;
-    }
-    return <Navigate to="/dashboard" replace />;
-  }
+  if (isAuthenticated) return null;
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -293,7 +295,7 @@ export function LoginPage() {
           <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
             <Code2 className="w-5 h-5 text-white" />
           </div>
-          <span className="text-xl font-display font-bold text-white">SearchJobs</span>
+          <span className="text-xl font-display font-bold text-white">searchjobs</span>
         </div>
 
         <h1 className="text-3xl lg:text-[2.6rem] font-display font-bold text-white leading-[1.1] mb-3">

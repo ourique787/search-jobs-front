@@ -141,7 +141,7 @@ export function HomePage() {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <Code2 className="w-4 h-4 text-white" />
             </div>
-            <span className="font-display font-bold text-foreground">SearchJobs</span>
+            <span className="font-display font-bold text-foreground">searchjobs</span>
           </div>
           <Link
             to="/login"
@@ -171,7 +171,7 @@ export function HomePage() {
           </h1>
 
           <p className="text-lg text-muted-foreground mb-5 max-w-md leading-relaxed">
-            SearchJobs reúne vagas do InfoJobs e do Empregos.com.br num feed único — filtrado por senioridade e stack para combinar com o seu perfil.
+            searchjobs reúne vagas do InfoJobs e do Empregos.com.br num feed único — filtrado por senioridade e stack para combinar com o seu perfil.
           </p>
 
           {/* Fontes + contagem dinâmica */}
@@ -283,7 +283,7 @@ export function HomePage() {
                   Feche as outras<br />nove abas.
                 </h2>
                 <p className="text-white/70 mb-8 max-w-sm leading-relaxed">
-                  Crie sua conta e deixe o SearchJobs agregar tudo num lugar só.
+                  Crie sua conta e deixe o searchjobs agregar tudo num lugar só.
                 </p>
                 <Link
                   to="/login"
@@ -301,7 +301,7 @@ export function HomePage() {
                     <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center flex-shrink-0">
                       <Code2 className="w-3.5 h-3.5 text-white" />
                     </div>
-                    <span className="text-sm font-display font-bold text-white">SearchJobs</span>
+                    <span className="text-sm font-display font-bold text-white">searchjobs</span>
                   </div>
                   <div className="space-y-2">
                     {[
@@ -328,9 +328,9 @@ export function HomePage() {
             <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
               <Code2 className="w-3 h-3 text-white" />
             </div>
-            <span className="font-display font-medium text-foreground">SearchJobs</span>
+            <span className="font-display font-medium text-foreground">searchjobs</span>
           </div>
-          <p>© {new Date().getFullYear()} SearchJobs</p>
+          <p>© {new Date().getFullYear()} searchjobs</p>
         </div>
       </footer>
     </div>
