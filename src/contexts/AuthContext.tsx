@@ -19,7 +19,7 @@ interface AuthContextValue {
   isLoading: boolean;
   login: (data: LoginRequest) => Promise<void>;
   register: (data: RegisterRequest) => Promise<void>;
-  googleLogin: (accessToken: string) => Promise<void>;
+  googleLogin: (accessToken: string) => Promise<AuthResponse>;
   logout: () => void;
   updateUser: (data: Partial<Omit<AuthUser, "initials">>) => void;
 }
@@ -78,10 +78,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(buildUser(response));
   }
 
-  async function googleLogin(accessToken: string): Promise<void> {
+  async function googleLogin(accessToken: string): Promise<AuthResponse> {
     const response = await api.auth.googleLogin(accessToken);
     saveToken(response.token);
     setUser(buildUser(response));
+    return response;
   }
 
   function logout(): void {

@@ -184,8 +184,9 @@ export function LoginPage() {
       setGooglePending(true);
       setError(null);
       try {
-        await googleLogin(tokenResponse.access_token);
-        navigate("/dashboard");
+        const result = await googleLogin(tokenResponse.access_token);
+        const isNewUser = !result?.senioridadeAlvo && !result?.stacksPreferidas?.length;
+        navigate(isNewUser ? "/onboarding" : "/dashboard");
       } catch {
         setError("Falha ao entrar com Google. Tente novamente.");
         setGooglePending(false);

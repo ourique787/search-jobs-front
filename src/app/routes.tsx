@@ -6,6 +6,7 @@ import { PerfilPage } from "./components/perfil-page";
 import { ProtectedRoute } from "./components/protected-route";
 import { ResetPasswordPage } from "./components/reset-password-page";
 import { ForgotPasswordPage } from "./components/forgot-password-page";
+import { OnboardingPage } from "./components/onboarding-page";
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +20,14 @@ export const router = createBrowserRouter([
   {
     path: "/reset-password",
     Component: ResetPasswordPage,
+  },
+  {
+    path: "/onboarding",
+    element: (
+      <ProtectedRoute>
+        <OnboardingPage />
+      </ProtectedRoute>
+    ),
   },
   {
     path: "/dashboard",
