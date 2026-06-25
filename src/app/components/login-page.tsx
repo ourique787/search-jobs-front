@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { useGoogleLogin } from "@react-oauth/google";
 import { Code2, Check, Eye, EyeOff, X, ChevronDown } from "lucide-react";
@@ -159,6 +159,8 @@ export function LoginPage() {
   const navigate = useNavigate();
   const { login, register, googleLogin, updateUser, isAuthenticated, isLoading } = useAuth();
 
+  const pendingOnboarding = useRef(false);
+
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [googlePending, setGooglePending] = useState(false);
@@ -185,8 +187,7 @@ export function LoginPage() {
       setError(null);
       try {
         const result = await googleLogin(tokenResponse.access_token);
-        const isNewUser = !result?.senioridadeAlvo && !result?.stacksPreferidas?.length;
-        navigate(isNewUser ? "/onboarding" : "/dashboard");
+        pendingOnboarding.current = !result?.senioridadeAlvo && !result?.stacksPreferidas?.length;
       } catch {
         setError("Falha ao entrar com Google. Tente novamente.");
         setGooglePending(false);
@@ -206,6 +207,10 @@ export function LoginPage() {
   }
 
   if (isAuthenticated) {
+    if (pendingOnboarding.current) {
+      pendingOnboarding.current = false;
+      return <Navigate to="/onboarding" replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 
