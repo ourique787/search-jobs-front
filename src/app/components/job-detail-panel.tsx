@@ -3,7 +3,7 @@ import { api } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job } from "@/types";
-const EMPRESA_DESCONHECIDA = "não informada";
+const EMPRESA_DESCONHECIDA = "Não informada";
 
 interface JobDetailPanelProps {
   job: Job | null;
@@ -21,11 +21,10 @@ function getCompanyColor(name: string): string {
 }
 
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  });
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86_400_000);
+  if (days === 0) return "coletada hoje";
+  if (days === 1) return "coletada há 1 dia";
+  return `coletada há ${days} dias`;
 }
 
 // ── Description formatter ─────────────────────────────────────────────────
