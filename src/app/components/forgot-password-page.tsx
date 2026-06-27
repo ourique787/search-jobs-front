@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { Code2, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import { BrandLogo } from "./brand-logo";
 import { motion } from "motion/react";
 import { api } from "@/services/api";
 
@@ -32,11 +33,8 @@ export function ForgotPasswordPage() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-[400px]"
       >
-        <div className="flex items-center gap-2.5 mb-8">
-          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-            <Code2 className="w-5 h-5 text-primary" />
-          </div>
-          <span className="text-xl font-display font-bold text-foreground">searchjobs</span>
+        <div className="mb-8">
+          <BrandLogo />
         </div>
 
         {status === "sent" ? (

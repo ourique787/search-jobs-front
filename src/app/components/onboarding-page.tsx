@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
-import { Code2, Search } from "lucide-react";
+import { Search } from "lucide-react";
+import { BrandLogo } from "./brand-logo";
 import { motion } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/services/api";
@@ -74,12 +75,8 @@ export function OnboardingPage() {
         transition={{ duration: 0.4 }}
         className="w-full max-w-[480px]"
       >
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 mb-8">
-          <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-            <Code2 className="w-5 h-5 text-primary" />
-          </div>
-          <span className="text-xl font-display font-bold text-foreground">searchjobs</span>
+        <div className="mb-8">
+          <BrandLogo />
         </div>
 
         <h1 className="text-2xl font-display font-bold text-foreground mb-1">

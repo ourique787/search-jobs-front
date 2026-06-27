@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { Code2, Settings, LogOut, ChevronDown, Menu, BarChart2 } from "lucide-react";
+import { Settings, LogOut, ChevronDown, Menu, BarChart2 } from "lucide-react";
+import { LogoMark } from "./brand-logo";
 import { useNavigate, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -47,14 +48,7 @@ export function Header() {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-              <Code2 className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-            </div>
-            <span className="text-lg sm:text-xl font-display font-bold text-primary">
-              searchjobs
-            </span>
-          </div>
+          <LogoMark className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center gap-1">

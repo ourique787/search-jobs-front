@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Navigate, useNavigate } from "react-router";
 import { useGoogleLogin } from "@react-oauth/google";
-import { Code2, Check, Eye, EyeOff, X, ChevronDown } from "lucide-react";
+import { Check, Eye, EyeOff, X, ChevronDown } from "lucide-react";
+import { BrandLogo } from "./brand-logo";
 import { motion } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/services/api";
@@ -291,11 +292,8 @@ export function LoginPage() {
 
       {/* ── Coluna esquerda ──────────────────────────────────────────────── */}
       <div className="bg-primary flex flex-col px-8 py-10 lg:flex-1 lg:px-14 lg:justify-center">
-        <div className="flex items-center gap-2.5 mb-8">
-          <div className="w-10 h-10 bg-white/15 rounded-xl flex items-center justify-center">
-            <Code2 className="w-5 h-5 text-white" />
-          </div>
-          <span className="text-xl font-display font-bold text-white">searchjobs</span>
+        <div className="mb-8">
+          <BrandLogo textColor="text-white" iconSize="w-8 h-8" />
         </div>
 
         <h1 className="text-3xl lg:text-[2.6rem] font-display font-bold text-white leading-[1.1] mb-3">
