@@ -328,7 +328,7 @@ export function RelatoriosPage() {
           className="lg:hidden mb-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium flex items-center gap-2 shadow-sm hover:bg-primary/90 transition-colors"
         >
           <Filter className="w-4 h-4" />
-          {showFilters ? "Fechar Filtros" : "Abrir Filtros"}
+          {showFilters ? "fechar filtros" : "abrir filtros"}
         </button>
 
         <div className="flex flex-col lg:flex-row gap-6">
@@ -337,20 +337,20 @@ export function RelatoriosPage() {
             <aside className="w-full lg:w-72 bg-card border border-border rounded-xl p-4 sm:p-6 h-fit sticky top-24">
               <div className="flex items-center gap-2 mb-5">
                 <BarChart2 className="w-4 h-4 text-primary" />
-                <h2 className="text-base font-semibold text-foreground">Filtros do Relatório</h2>
+                <h2 className="text-base font-semibold text-foreground">filtros do relatório</h2>
               </div>
 
               {/* Período — presets + intervalo como um único controle */}
               <div className="mb-5">
                 <p className="text-xs sm:text-sm font-medium text-foreground mb-3 flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
-                  Período
+                  período
                 </p>
                 {/* Atalhos rápidos */}
                 <div className="grid grid-cols-2 gap-1.5 mb-3">
                   {([
-                    { label: "Última semana", value: 7 },
-                    { label: "Último mês",    value: 30 },
+                    { label: "última semana", value: 7 },
+                    { label: "último mês",    value: 30 },
                     { label: "3 meses",       value: 90 },
                     { label: "Todo período",  value: "todo" },
                   ] as { label: string; value: "todo" | number }[]).map(({ label, value }) => (
@@ -370,7 +370,7 @@ export function RelatoriosPage() {
                 {/* Intervalo manual */}
                 <div className="space-y-2">
                   <div>
-                    <label className="text-xs text-muted-foreground">De</label>
+                    <label className="text-xs text-muted-foreground">de</label>
                     <input
                       type="date"
                       value={dataInicio}
@@ -379,7 +379,7 @@ export function RelatoriosPage() {
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground">Até</label>
+                    <label className="text-xs text-muted-foreground">até</label>
                     <input
                       type="date"
                       value={dataFim}
@@ -392,7 +392,7 @@ export function RelatoriosPage() {
 
               {/* Senioridade */}
               <div className="mb-5">
-                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">Senioridade</p>
+                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">senioridade</p>
                 <div className="space-y-2">
                   {SENIORITY_OPTIONS.map(({ value, label }) => (
                     <label key={value} className="flex items-center gap-3 cursor-pointer group">
@@ -418,14 +418,14 @@ export function RelatoriosPage() {
 
               {/* Tecnologias */}
               <div className="mb-6">
-                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">Tecnologias</p>
+                <p className="text-xs sm:text-sm font-medium text-foreground mb-3">tecnologias</p>
                 <div className="relative mb-2">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="text"
                     value={stackSearch}
                     onChange={(e) => setStackSearch(e.target.value)}
-                    placeholder="Buscar tecnologia..."
+                    placeholder="buscar tecnologia..."
                     className="w-full pl-9 pr-3 py-2 bg-input-background border border-input rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-ring transition-shadow"
                   />
                 </div>
@@ -471,7 +471,7 @@ export function RelatoriosPage() {
                   ))}
                   {unselectedFiltered.length === 0 && selectedStacks.length === 0 && (
                     <p className="text-xs text-muted-foreground py-2">
-                      Nenhuma tecnologia encontrada.
+                      nenhuma tecnologia encontrada.
                     </p>
                   )}
                 </div>
@@ -480,7 +480,7 @@ export function RelatoriosPage() {
               {/* Ações */}
               {isDirty && (
                 <p className="text-xs text-muted-foreground text-center mb-2">
-                  Alterações não aplicadas
+                  alterações não aplicadas
                 </p>
               )}
               <button
@@ -491,7 +491,7 @@ export function RelatoriosPage() {
                 }`}
               >
                 <RefreshCw className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`} />
-                Gerar Relatório
+                gerar relatório
               </button>
 
               {hasFilters && (
@@ -499,7 +499,7 @@ export function RelatoriosPage() {
                   onClick={handleLimpar}
                   className="w-full py-2 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-xl text-sm font-medium transition-colors"
                 >
-                  Limpar Filtros
+                  limpar filtros
                 </button>
               )}
             </aside>
@@ -508,11 +508,11 @@ export function RelatoriosPage() {
           {/* ── Conteúdo principal ─────────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
             <div className="mb-6">
-              <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1">Relatórios</h1>
+              <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-1">relatórios</h1>
               <p className="text-sm text-muted-foreground">
                 {relatorio && !isLoading
                   ? `Gerado em ${formatDateTime(relatorio.geradoEm)} · ${relatorio.resumo.totalCandidaturas} registro${relatorio.resumo.totalCandidaturas !== 1 ? "s" : ""}`
-                  : "Visualize suas vagas clicadas com filtros personalizados."}
+                  : "visualize suas vagas clicadas com filtros personalizados."}
               </p>
             </div>
 
@@ -526,7 +526,7 @@ export function RelatoriosPage() {
               <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-6 text-center">
                 <p className="text-destructive font-medium mb-1">{error}</p>
                 <p className="text-muted-foreground text-sm">
-                  Verifique se o backend está em execução e tente novamente.
+                  verifique se o backend está em execução e tente novamente.
                 </p>
               </div>
             )}
@@ -535,7 +535,7 @@ export function RelatoriosPage() {
               <>
                 {/* Banner de filtros aplicados */}
                 <div className="bg-primary/5 border border-primary/20 rounded-xl p-3 mb-6 flex flex-wrap gap-2 items-center">
-                  <span className="text-xs font-semibold text-primary">Período:</span>
+                  <span className="text-xs font-semibold text-primary">período:</span>
                   <span className="text-xs font-mono bg-card border border-border rounded-full px-2.5 py-0.5 text-muted-foreground">
                     {periodLabel}
                   </span>
@@ -564,25 +564,25 @@ export function RelatoriosPage() {
                 {/* Cards de resumo */}
                 <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
                   <StatCard
-                    label="Total de Visualizações"
+                    label="total de visualizações"
                     value={relatorio.resumo.totalCandidaturas}
                     sub="vagas clicadas no período"
                     icon={FileText}
                   />
                   <StatCard
-                    label="Fonte Principal"
+                    label="fonte principal"
                     value={topFonte?.name ?? "—"}
                     sub={topFonte ? `${topFonte.value} vagas` : undefined}
                     icon={Building2}
                   />
                   <StatCard
-                    label="Senioridade Top"
+                    label="senioridade top"
                     value={topSenioridade?.name ?? "—"}
-                    sub={topSenioridade ? `${topSenioridade.value} vagas` : "Sem dados suficientes"}
+                    sub={topSenioridade ? `${topSenioridade.value} vagas` : "sem dados suficientes"}
                     icon={TrendingUp}
                   />
                   <StatCard
-                    label="Tecnologia Top"
+                    label="tecnologia top"
                     value={topStack?.name ?? "—"}
                     sub={topStack ? `${topStack.value} vagas` : undefined}
                     icon={Layers}
@@ -595,7 +595,7 @@ export function RelatoriosPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
 
                       {/* Visualizações por Mês — always shown; empty state inside */}
-                      <ChartCard title="Visualizações por Mês">
+                      <ChartCard title="visualizações por mês">
                         {porMesData.length === 0 ? <ChartEmpty /> : (
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart
@@ -614,7 +614,7 @@ export function RelatoriosPage() {
                       </ChartCard>
 
                       {/* Por Dia da Semana */}
-                      <ChartCard title="Por Dia da Semana">
+                      <ChartCard title="por dia da semana">
                         {porDiaData.length === 0 ? <ChartEmpty /> : (
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={porDiaData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
@@ -630,7 +630,7 @@ export function RelatoriosPage() {
 
                       {/* Vagas por Fonte — ranked: top bar full indigo, rest muted */}
                       {porFonteData.length > 0 && (
-                        <ChartCard title="Vagas por Fonte">
+                        <ChartCard title="vagas por fonte">
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={porFonteData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -645,7 +645,7 @@ export function RelatoriosPage() {
 
                       {/* Por Senioridade — single color */}
                       {porSenioridadeData.length > 0 && (
-                        <ChartCard title="Por Senioridade">
+                        <ChartCard title="por senioridade">
                           <ResponsiveContainer width="100%" height={200}>
                             <BarChart data={porSenioridadeData} margin={{ top: 0, right: 4, left: -20, bottom: 0 }}>
                               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
@@ -662,7 +662,7 @@ export function RelatoriosPage() {
                     {/* Top Tecnologias — ranked horizontal */}
                     {porStackData.length > 0 && (
                       <div className="mb-6">
-                        <ChartCard title={`Top ${porStackData.length} Tecnologias`}>
+                        <ChartCard title={`top ${porStackData.length} tecnologias`}>
                           <ResponsiveContainer width="100%" height={porStackData.length * 38 + 16}>
                             <BarChart
                               data={porStackData}
@@ -684,7 +684,7 @@ export function RelatoriosPage() {
                     <div className="bg-card border border-border rounded-xl overflow-hidden">
                       <div className="px-4 sm:px-6 py-4 border-b border-border flex items-center justify-between">
                         <h3 className="font-display font-medium text-foreground text-sm sm:text-base">
-                          Vagas Visualizadas
+                          vagas visualizadas
                         </h3>
                         <span className="text-xs font-mono text-muted-foreground bg-secondary rounded-full px-2.5 py-0.5">
                           {relatorio.candidaturas.length} registro{relatorio.candidaturas.length !== 1 ? "s" : ""}
@@ -696,22 +696,22 @@ export function RelatoriosPage() {
                           <thead>
                             <tr className="bg-secondary/40 border-b border-border">
                               <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground whitespace-nowrap">
-                                Data
+                                data
                               </th>
                               <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground">
-                                Vaga
+                                vaga
                               </th>
                               <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden md:table-cell">
-                                Senioridade
+                                senioridade
                               </th>
                               <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden lg:table-cell">
-                                Tecnologias
+                                tecnologias
                               </th>
                               <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground hidden md:table-cell">
-                                Fonte
+                                fonte
                               </th>
                               <th className="text-center px-4 py-3 text-xs font-medium text-muted-foreground">
-                                Link
+                                link
                               </th>
                             </tr>
                           </thead>
@@ -784,14 +784,14 @@ export function RelatoriosPage() {
                               disabled={page === 1}
                               className="px-3 py-1.5 text-xs bg-secondary hover:bg-secondary/70 rounded-lg disabled:opacity-40 transition-colors font-medium"
                             >
-                              Anterior
+                              anterior
                             </button>
                             <button
                               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                               disabled={page === totalPages}
                               className="px-3 py-1.5 text-xs bg-secondary hover:bg-secondary/70 rounded-lg disabled:opacity-40 transition-colors font-medium"
                             >
-                              Próxima
+                              próxima
                             </button>
                           </div>
                         </div>
@@ -801,7 +801,7 @@ export function RelatoriosPage() {
                 ) : (
                   <div className="bg-card border border-border rounded-xl py-20 text-center">
                     <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-                    <p className="text-foreground font-medium mb-1">Nenhuma vaga encontrada</p>
+                    <p className="text-foreground font-medium mb-1">nenhuma vaga encontrada</p>
                     <p className="text-muted-foreground text-sm">
                       Ajuste os filtros ou clique em vagas para que elas apareçam aqui.
                     </p>

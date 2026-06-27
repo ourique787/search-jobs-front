@@ -138,9 +138,9 @@ const SENIORIDADE_OPTIONS: { value: Senioridade; label: string }[] = [
 ];
 
 const VALUE_POINTS = [
-  "Junta as vagas de diversos portais em um único feed.",
-  "Remove duplicatas e filtra pelo seu perfil — stack e senioridade.",
-  "Mostra de onde veio cada vaga e o quanto ela combina com você.",
+  "junta as vagas de diversos portais em um único feed.",
+  "remove duplicatas e filtra pelo seu perfil — stack e senioridade.",
+  "mostra de onde veio cada vaga e o quanto ela combina com você.",
 ];
 
 function GoogleIcon() {
@@ -293,14 +293,14 @@ export function LoginPage() {
       {/* ── Coluna esquerda ──────────────────────────────────────────────── */}
       <div className="bg-primary flex flex-col px-8 py-10 lg:flex-1 lg:px-14 lg:justify-center">
         <div className="mb-8">
-          <BrandLogo textColor="text-white" iconSize="w-8 h-8" />
+          <BrandLogo textColor="text-white" iconColor="text-white" iconSize="w-8 h-8" />
         </div>
 
         <h1 className="text-3xl lg:text-[2.6rem] font-display font-bold text-white leading-[1.1] mb-3">
           vagas de tech,<br />sem perda de tempo.
         </h1>
         <p className="text-white/55 text-sm mb-8 leading-relaxed max-w-[22rem]">
-          Tudo que você precisa para encontrar a próxima oportunidade — num lugar só.
+          tudo que você precisa para encontrar a próxima oportunidade — num lugar só.
         </p>
 
         <ul className="flex flex-col gap-3.5">

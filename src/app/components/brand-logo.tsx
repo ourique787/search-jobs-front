@@ -36,16 +36,18 @@ interface BrandLogoProps {
   iconSize?: string;
   textSize?: string;
   textColor?: string;
+  iconColor?: string;
 }
 
 export function BrandLogo({
   iconSize = "w-8 h-8",
   textSize = "text-xl",
   textColor = "text-foreground",
+  iconColor = "text-primary",
 }: BrandLogoProps) {
   return (
     <div className="flex items-center gap-2.5">
-      <LogoMark className={`${iconSize} text-primary`} />
+      <LogoMark className={`${iconSize} ${iconColor}`} />
       <span className={`${textSize} font-display font-bold ${textColor}`}>
         searchjobs
       </span>

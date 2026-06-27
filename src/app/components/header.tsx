@@ -12,8 +12,8 @@ export function Header() {
   const { user, logout } = useAuth();
 
   const navLinks = [
-    { label: "Vagas", path: "/dashboard" },
-    { label: "Relatórios", path: "/relatorios" },
+    { label: "vagas", path: "/dashboard" },
+    { label: "relatórios", path: "/relatorios" },
   ];
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -64,7 +64,7 @@ export function Header() {
                       : "text-muted-foreground hover:text-primary hover:bg-secondary"
                   }`}
                 >
-                  {label === "Relatórios" && (
+                  {label === "relatórios" && (
                     <BarChart2 className="w-4 h-4" />
                   )}
                   {label}
@@ -121,14 +121,14 @@ export function Header() {
                         className="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-secondary transition-colors text-foreground text-sm"
                       >
                         <Settings className="w-4 h-4" />
-                        <span>Meu Perfil</span>
+                        <span>meu perfil</span>
                       </button>
                       <button
                         onClick={handleLogout}
                         className="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-secondary transition-colors text-destructive text-sm"
                       >
                         <LogOut className="w-4 h-4" />
-                        <span>Sair</span>
+                        <span>sair</span>
                       </button>
                     </div>
                   </motion.div>
@@ -163,7 +163,7 @@ export function Header() {
                           : "text-muted-foreground hover:bg-secondary"
                       }`}
                     >
-                      {label === "Relatórios" && <BarChart2 className="w-4 h-4" />}
+                      {label === "relatórios" && <BarChart2 className="w-4 h-4" />}
                       {label}
                     </button>
                   );

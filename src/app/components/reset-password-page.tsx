@@ -75,8 +75,8 @@ export function ResetPasswordPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-display font-bold text-foreground">Senha redefinida!</h2>
-            <p className="text-sm text-muted-foreground">Sua nova senha foi salva. Faça login para continuar.</p>
+            <h2 className="text-2xl font-display font-bold text-foreground">senha redefinida!</h2>
+            <p className="text-sm text-muted-foreground">sua nova senha foi salva. faça login para continuar.</p>
             <button
               onClick={() => navigate("/")}
               className="w-full bg-accent hover:bg-accent/90 text-accent-foreground py-3 rounded-xl transition-colors font-medium"

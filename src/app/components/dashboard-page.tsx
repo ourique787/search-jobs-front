@@ -34,6 +34,37 @@ export function DashboardPage() {
   const [showFilters, setShowFilters] = useState(false);
   const autoSelectedRef = useRef(false);
 
+  const [listWidth, setListWidth] = useState(45);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDesktop, setIsDesktop] = useState(() => window.innerWidth >= 1024);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  function handleDragStart(e: React.MouseEvent) {
+    e.preventDefault();
+    const onMove = (ev: MouseEvent) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const pct = ((ev.clientX - rect.left) / rect.width) * 100;
+      setListWidth(Math.max(25, Math.min(70, pct)));
+    };
+    const onUp = () => {
+      document.removeEventListener("mousemove", onMove);
+      document.removeEventListener("mouseup", onUp);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    document.addEventListener("mousemove", onMove);
+    document.addEventListener("mouseup", onUp);
+  }
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSeniorities, setSelectedSeniorities] = useState<string[]>([]);
   const [selectedTechs, setSelectedTechs] = useState<string[]>([]);
@@ -116,12 +147,13 @@ export function DashboardPage() {
       <Header />
 
       <div className="flex flex-1 overflow-hidden">
-        <div className="flex flex-1 overflow-hidden max-w-[1600px] mx-auto w-full pl-4 sm:pl-6 pr-4 sm:pr-6">
+        <div ref={containerRef} className="flex flex-1 overflow-hidden max-w-[1600px] mx-auto w-full pl-4 sm:pl-6 pr-4 sm:pr-6">
 
           {/* ── Painel da lista de vagas ── */}
-          <div className={`flex flex-col w-full lg:w-[45%] flex-shrink-0 border-r border-border ${
-            showMobileDetail ? "hidden lg:flex" : "flex"
-          }`}>
+          <div
+            className={`flex flex-col flex-shrink-0 border-r border-border ${showMobileDetail ? "hidden lg:flex" : "flex"} ${isDesktop ? "" : "w-full"}`}
+            style={isDesktop ? { width: `${listWidth}%` } : undefined}
+          >
             {/* Header: busca + filtros */}
             <div className="relative flex-shrink-0">
               <div className="bg-card border-b border-border p-3 sm:p-4 space-y-2">
@@ -132,7 +164,7 @@ export function DashboardPage() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Cargo, empresa ou tecnologia..."
+                      placeholder="cargo, empresa ou tecnologia..."
                       className="w-full pl-9 pr-4 py-2.5 bg-secondary border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-all"
                     />
                   </div>
@@ -145,7 +177,7 @@ export function DashboardPage() {
                     }`}
                   >
                     <SlidersHorizontal className="w-4 h-4" />
-                    <span className="hidden sm:inline">Filtros</span>
+                    <span className="hidden sm:inline">filtros</span>
                     {activeFilterCount > 0 && (
                       <span className="w-4 h-4 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
                         {activeFilterCount}
@@ -156,7 +188,7 @@ export function DashboardPage() {
 
                 <p className="text-xs font-mono text-muted-foreground">
                   {isLoading
-                    ? "Carregando..."
+                    ? "carregando..."
                     : `${filteredJobs.length} vaga${filteredJobs.length !== 1 ? "s" : ""} encontrada${filteredJobs.length !== 1 ? "s" : ""}`}
                 </p>
               </div>
@@ -171,14 +203,14 @@ export function DashboardPage() {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-semibold text-muted-foreground">
-                          Senioridade
+                          senioridade
                         </p>
                         {selectedSeniorities.length > 0 && (
                           <button
                             onClick={() => setSelectedSeniorities([])}
                             className="text-xs text-primary hover:underline"
                           >
-                            Limpar
+                            limpar
                           </button>
                         )}
                       </div>
@@ -203,14 +235,14 @@ export function DashboardPage() {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-semibold text-muted-foreground">
-                          Tecnologias{selectedTechs.length > 0 && ` (${selectedTechs.length})`}
+                          tecnologias{selectedTechs.length > 0 && ` (${selectedTechs.length})`}
                         </p>
                         {selectedTechs.length > 0 && (
                           <button
                             onClick={() => setSelectedTechs([])}
                             className="text-xs text-primary hover:underline"
                           >
-                            Limpar
+                            limpar
                           </button>
                         )}
                       </div>
@@ -220,7 +252,7 @@ export function DashboardPage() {
                           type="text"
                           value={techSearch}
                           onChange={(e) => setTechSearch(e.target.value)}
-                          placeholder="Buscar tecnologia..."
+                          placeholder="buscar tecnologia..."
                           className="w-full pl-8 pr-3 py-1.5 bg-secondary border border-border rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-accent/50 transition-colors"
                         />
                       </div>
@@ -239,7 +271,7 @@ export function DashboardPage() {
                           </button>
                         ))}
                         {filteredStackOptions.length === 0 && (
-                          <p className="text-xs text-muted-foreground">Nenhuma encontrada.</p>
+                          <p className="text-xs text-muted-foreground">nenhuma encontrada.</p>
                         )}
                       </div>
                     </div>
@@ -260,14 +292,14 @@ export function DashboardPage() {
                 <div className="p-6 text-center">
                   <p className="text-destructive text-sm font-medium">{fetchError}</p>
                   <p className="text-muted-foreground text-xs mt-1">
-                    Verifique se o backend está em execução.
+                    verifique se o backend está em execução.
                   </p>
                 </div>
               )}
               {!isLoading && !fetchError && filteredJobs.length === 0 && (
                 <div className="p-8 text-center">
-                  <p className="text-muted-foreground text-sm font-medium">Nenhuma vaga encontrada</p>
-                  <p className="text-muted-foreground text-xs mt-1">Tente outros filtros ou termos de busca.</p>
+                  <p className="text-muted-foreground text-sm font-medium">nenhuma vaga encontrada</p>
+                  <p className="text-muted-foreground text-xs mt-1">tente outros filtros ou termos de busca.</p>
                 </div>
               )}
 
@@ -275,10 +307,10 @@ export function DashboardPage() {
                 <>
                   <div className="sticky top-0 z-10 px-4 py-2.5 bg-card border-b border-border">
                     <p className="text-[13px] font-medium text-muted-foreground">
-                      Para você · {matchJobs.length} {matchJobs.length === 1 ? "vaga" : "vagas"}
+                      para você · {matchJobs.length} {matchJobs.length === 1 ? "vaga" : "vagas"}
                     </p>
                     <p className="text-[11px] text-muted-foreground/60 mt-0.5">
-                      Combinam com suas preferências
+                      combinam com suas preferências
                     </p>
                   </div>
                   {matchJobs.map((job) => (
@@ -295,7 +327,7 @@ export function DashboardPage() {
 
               {!isLoading && !fetchError && matchJobs.length > 0 && otherJobs.length > 0 && (
                 <div className="sticky top-0 z-10 px-4 py-2.5 bg-card border-b border-t border-border mt-1">
-                  <p className="text-[13px] font-medium text-muted-foreground">Outras vagas</p>
+                  <p className="text-[13px] font-medium text-muted-foreground">outras vagas</p>
                 </div>
               )}
 
@@ -310,8 +342,14 @@ export function DashboardPage() {
             </div>
           </div>
 
+          {/* Drag handle — desktop only */}
+          <div
+            onMouseDown={handleDragStart}
+            className="hidden lg:block w-1.5 cursor-col-resize flex-shrink-0 hover:bg-primary/20 active:bg-primary/30 transition-colors"
+          />
+
           {/* ── Painel de detalhe ── */}
-          <div className={`flex-1 overflow-hidden flex flex-col ${
+          <div className={`flex-1 min-w-0 overflow-hidden flex flex-col ${
             showMobileDetail ? "flex" : "hidden lg:flex"
           }`}>
             {showMobileDetail && (
@@ -320,7 +358,7 @@ export function DashboardPage() {
                 className="lg:hidden flex-shrink-0 px-4 py-3 bg-card border-b border-border flex items-center gap-2 text-sm text-primary font-medium hover:bg-secondary/50 transition-colors"
               >
                 <ChevronLeft className="w-4 h-4" />
-                Voltar para vagas
+                voltar para vagas
               </button>
             )}
             <JobDetailPanel

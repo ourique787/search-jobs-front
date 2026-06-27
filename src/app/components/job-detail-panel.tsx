@@ -3,7 +3,7 @@ import { api } from "@/services/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { SENIORIDADE_DISPLAY } from "@/types";
 import type { Job } from "@/types";
-const EMPRESA_DESCONHECIDA = "Não informada";
+const EMPRESA_DESCONHECIDA = "não informada";
 
 interface JobDetailPanelProps {
   job: Job | null;
@@ -245,7 +245,7 @@ export function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
               {hasQualifications && (
                 <span className="flex items-center gap-1 text-xs font-mono text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                   <Sparkles className="w-3 h-3" />
-                  Recomendada para você
+                  recomendada para você
                 </span>
               )}
               <span className="text-xs font-mono text-muted-foreground flex items-center gap-1">
@@ -260,7 +260,7 @@ export function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
           onClick={handleApply}
           className="mt-5 w-full bg-accent hover:bg-accent/90 text-accent-foreground py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2 shadow-sm"
         >
-          Ver Vaga Original
+          ver vaga original
           <ExternalLink className="w-4 h-4" />
         </button>
       </div>
@@ -272,7 +272,7 @@ export function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
         {hasQualifications && (
           <section className="bg-success-soft border border-success/20 rounded-xl p-4">
             <h3 className="text-sm font-display font-medium text-foreground mb-3">
-              Suas qualificações para esta vaga
+              suas qualificações para esta vaga
             </h3>
             <div className="space-y-2">
               {senioridadeMatch && (
@@ -298,7 +298,7 @@ export function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
           <section>
             <h3 className="text-sm font-display font-medium text-foreground mb-3 flex items-center gap-2">
               <Layers className="w-4 h-4 text-muted-foreground" />
-              Tecnologias Requisitadas
+              tecnologias requisitadas
             </h3>
             <div className="flex flex-wrap gap-2">
               {job.stacksRequisitadas.map((s) => (
@@ -316,7 +316,7 @@ export function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
         {/* Descrição */}
         {job.descricao?.trim() && (
           <section>
-            <h3 className="text-sm font-display font-medium text-foreground mb-3">Descrição</h3>
+            <h3 className="text-sm font-display font-medium text-foreground mb-3">descrição</h3>
             <div className="bg-card border border-border rounded-xl p-4">
               <DescriptionRenderer text={job.descricao!} />
             </div>
@@ -339,7 +339,7 @@ export function JobDetailPanel({ job, onClose }: JobDetailPanelProps) {
           onClick={handleApply}
           className="w-full border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
         >
-          Ver Vaga Original
+          ver vaga original
           <ExternalLink className="w-4 h-4" />
         </button>
       </div>

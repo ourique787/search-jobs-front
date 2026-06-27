@@ -98,7 +98,7 @@ export function PerfilPage() {
       return;
     }
     if (!isValidUrl(linkedin) || !isValidUrl(github)) {
-      setInfoError("Verifique os campos de URL.");
+      setInfoError("verifique os campos de URL.");
       setInfoStatus("error");
       return;
     }
@@ -204,9 +204,9 @@ export function PerfilPage() {
   };
 
   const navItems: { section: Section; label: string; Icon: React.ElementType }[] = [
-    { section: "informacoes", label: "Informações pessoais", Icon: User },
-    { section: "preferencias", label: "Preferências de vagas", Icon: Briefcase },
-    { section: "seguranca", label: "Segurança", Icon: Lock },
+    { section: "informacoes", label: "informações pessoais", Icon: User },
+    { section: "preferencias", label: "preferências de vagas", Icon: Briefcase },
+    { section: "seguranca", label: "segurança", Icon: Lock },
   ];
 
   const inputClass =
@@ -246,8 +246,8 @@ export function PerfilPage() {
             {/* Navigation */}
             <nav className="p-4 space-y-6">
               <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
-                  Meu perfil
+                <p className="text-[11px] font-semibold text-muted-foreground tracking-wider px-3 mb-2">
+                  meu perfil
                 </p>
                 {navItems.map(({ section: s, label, Icon }) => (
                   <button
@@ -269,15 +269,15 @@ export function PerfilPage() {
               </div>
 
               <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-2">
-                  Conta
+                <p className="text-[11px] font-semibold text-muted-foreground tracking-wider px-3 mb-2">
+                  conta
                 </p>
                 <button
                   onClick={handleLogout}
                   className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
-                  Sair
+                  sair
                 </button>
               </div>
             </nav>
@@ -355,7 +355,7 @@ export function PerfilPage() {
                       </label>
                       {fotoStatus === "error" && (
                         <p className="absolute top-full mt-2 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs text-destructive bg-card border border-destructive/30 rounded-lg px-2 py-1 shadow">
-                          Erro ao enviar foto.
+                          erro ao enviar foto.
                         </p>
                       )}
                     </div>
@@ -379,7 +379,7 @@ export function PerfilPage() {
                             value={nome}
                             onChange={(e) => setNome(e.target.value)}
                             className={`${inputClass} pl-9`}
-                            placeholder="Seu nome completo"
+                            placeholder="seu nome completo"
                           />
                         </div>
                       </div>
@@ -451,17 +451,17 @@ export function PerfilPage() {
                         {infoStatus === "loading" ? (
                           <>
                             <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
-                            Salvando...
+                            salvando...
                           </>
                         ) : infoStatus === "success" ? (
                           <>
                             <Check className="w-4 h-4" />
-                            Salvo!
+                            salvo!
                           </>
                         ) : (
                           <>
                             <Save className="w-4 h-4" />
-                            Salvar
+                            salvar
                           </>
                         )}
                       </button>
@@ -480,7 +480,7 @@ export function PerfilPage() {
                   transition={{ duration: 0.2 }}
                 >
                   <h1 className="text-xl font-semibold text-foreground mb-1">
-                    Preferências de vagas
+                    preferências de vagas
                   </h1>
                   <p className="text-sm text-muted-foreground mb-8">
                     Suas preferências priorizam vagas correspondentes na página de vagas.
@@ -525,7 +525,7 @@ export function PerfilPage() {
                       <p className="text-xs font-mono text-muted-foreground mb-4">
                         {preferredStacks.length > 0
                           ? `${preferredStacks.length} selecionada${preferredStacks.length > 1 ? "s" : ""}`
-                          : "Nenhuma selecionada"}
+                          : "nenhuma selecionada"}
                       </p>
 
                       <div className="relative mb-3">
@@ -534,7 +534,7 @@ export function PerfilPage() {
                           type="text"
                           value={stackSearch}
                           onChange={(e) => setStackSearch(e.target.value)}
-                          placeholder="Buscar tecnologia..."
+                          placeholder="buscar tecnologia..."
                           className="w-full pl-8 pr-3 py-2 bg-secondary border border-border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
                         />
                       </div>
@@ -557,7 +557,7 @@ export function PerfilPage() {
                           </label>
                         ))}
                         {filteredPrefStacks.length === 0 && (
-                          <p className="text-xs text-muted-foreground py-1">Nenhuma encontrada.</p>
+                          <p className="text-xs text-muted-foreground py-1">nenhuma encontrada.</p>
                         )}
                       </div>
                     </div>
@@ -582,7 +582,7 @@ export function PerfilPage() {
                         ) : (
                           <>
                             <Save className="w-4 h-4" />
-                            Salvar preferências
+                            salvar preferências
                           </>
                         )}
                       </button>
@@ -600,9 +600,9 @@ export function PerfilPage() {
                   exit={{ opacity: 0, y: -14 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h1 className="text-xl font-semibold text-foreground mb-1">Segurança</h1>
+                  <h1 className="text-xl font-semibold text-foreground mb-1">segurança</h1>
                   <p className="text-sm text-muted-foreground mb-8">
-                    Altere sua senha de acesso à plataforma.
+                    altere sua senha de acesso à plataforma.
                   </p>
 
                   <form onSubmit={handleSavePassword} className="space-y-5 max-w-md">
