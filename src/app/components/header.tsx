@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Settings, LogOut, ChevronDown, Menu, BarChart2 } from "lucide-react";
-import { LogoMark } from "./brand-logo";
+import { BrandLogo } from "./brand-logo";
 import { useNavigate, useLocation } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -48,7 +48,7 @@ export function Header() {
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 sm:py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <LogoMark className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+          <BrandLogo iconSize="w-7 h-7 sm:w-8 sm:h-8" textSize="text-lg sm:text-xl" textColor="text-primary" />
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center gap-1">

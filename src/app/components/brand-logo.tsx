@@ -10,12 +10,24 @@ export function LogoMark({ className = "w-6 h-6" }: LogoMarkProps) {
       aria-hidden="true"
       className={className}
     >
-      {/* Top bar */}
-      <rect x="5" y="3" width="14" height="2.5" rx="1.25" fill="currentColor" />
-      {/* Stem */}
-      <rect x="10.75" y="5.5" width="2.5" height="13" fill="currentColor" />
-      {/* Bottom bar */}
-      <rect x="5" y="18.5" width="14" height="2.5" rx="1.25" fill="currentColor" />
+      {/* > prompt */}
+      <polyline
+        points="3,7.5 10.5,12 3,16.5"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      {/* _ cursor */}
+      <line
+        x1="13"
+        y1="16.5"
+        x2="21"
+        y2="16.5"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
